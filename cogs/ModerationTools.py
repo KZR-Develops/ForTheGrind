@@ -8,6 +8,11 @@ from discord.ext import commands
 with open('config.json', 'r') as f:
     config = json.load(f)
 
+modlogsID = config['channels']['modlogs']
+announcement = config['channels']['announcement']
+current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+
 class ModerationTools(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -23,8 +28,6 @@ class ModerationTools(commands.Cog):
             await ctx.send(embed=embedError)
         else:
             if member is not None:
-                modlogsID = config['channels']['modlogs']
-                current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 
                 # Load the JSON file containing the cases
                 with open('./extras/cases.json', 'r') as f:
@@ -65,8 +68,6 @@ class ModerationTools(commands.Cog):
                 embedLog.set_footer(text=f"Case ID: {case_number}")
                 await channel.send(embed=embedLog)
             else:
-                modlogsID = config['channels']['modlogs']
-                current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 
                 # Load the JSON file containing the cases
                 with open('./extras/cases.json', 'r') as f:
@@ -115,8 +116,6 @@ class ModerationTools(commands.Cog):
             
             await ctx.send(embed=embedError, delete_after=3)
         else:
-            modlogsID = config['channels']['modlogs']
-            current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             
             # Load the JSON file containing the cases
             with open('./extras/cases.json', 'r') as f:
@@ -174,8 +173,6 @@ class ModerationTools(commands.Cog):
             
             await ctx.send(embed=embedError, delete_after=3)
         else:
-            modlogsID = config['channels']['modlogs']
-            current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             
             # Load the JSON file containing the cases
             with open('./extras/cases.json', 'r') as f:
@@ -233,8 +230,6 @@ class ModerationTools(commands.Cog):
             
             await ctx.send(embed=embedError, delete_after=3)
         else:
-            modlogsID = config['channels']['modlogs']
-            current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             
             # Load the JSON file containing the cases
             with open('./extras/cases.json', 'r') as f:
@@ -313,8 +308,6 @@ class ModerationTools(commands.Cog):
             
             await ctx.send(embed=embedError, delete_after=3)
         else:
-            modlogsID = config['channels']['modlogs']
-            current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             
             # Load the JSON file containing the cases
             with open('./extras/cases.json', 'r') as f:
@@ -388,10 +381,6 @@ class ModerationTools(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def lockdown(self, ctx):
         
-        modlogsID = config['channels']['modlogs']
-        announcement = config['channels']['announcement']
-        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        
         # Load the JSON file containing the cases
         with open('./extras/cases.json', 'r') as f:
             cases = json.load(f)
@@ -447,10 +436,6 @@ class ModerationTools(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def unlock(self, ctx):
-        
-        modlogsID = config['channels']['modlogs']
-        announcement = config['channels']['announcement']
-        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         
         # Load the JSON file containing the cases
         with open('./extras/cases.json', 'r') as f:

@@ -15,6 +15,9 @@ class Information(commands.Cog):
 
     @commands.group(name="info")
     async def info(self, ctx):
+        sbt = "<:SBT:1134737401089114203>"
+        sbb = "<:SBB:1134737393921036348>"
+
         if ctx.invoked_subcommand is None:
             with open('config.json', 'r') as f:
                 config = json.load(f)
@@ -38,8 +41,8 @@ class Information(commands.Cog):
             createdTime = self.bot.user.created_at.strftime("%B %d, %Y @ %I:%M %p")
             
             embedInfo = discord.Embed(title="Official Bot's Information", color=0xb50000, description="<:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198>")
-            embedInfo.add_field(name="<:SBT:1134737401089114203> Software Version", value=f'<:SBB:1134737393921036348> {phase} {version}', inline=True)
-            embedInfo.add_field(name="<:SBT:1134737401089114203> Library Version", value=f"<:SBB:1134737393921036348> Discord.py {dpyVersion}", inline=True)
+            embedInfo.add_field(name=f"{sbt}Software Version", value=f'{sbb}{phase} {version}', inline=True)
+            embedInfo.add_field(name=f"{sbt}Library Version", value=f"{sbb}Discord.py {dpyVersion}", inline=True)
 
             if uptime_days == 0:
                 days_text = ""
@@ -66,8 +69,8 @@ class Information(commands.Cog):
 
             uptime_text = f"{days_text} {hours_text} {minutes_text} {seconds_text}"
 
-            embedInfo.add_field(name="<:SBT:1134737401089114203> Total Running Time", value=f"<:SBB:1134737393921036348> {uptime_text}", inline=False)
-            embedInfo.add_field(name="<:SBT:1134737401089114203> Last System Startup Date", value=f'<:SBB:1134737393921036348> {formattedLastBoot}', inline=False)
+            embedInfo.add_field(name=f"{sbt}Total Running Time", value=f"{sbb}{uptime_text}", inline=False)
+            embedInfo.add_field(name=f"{sbt}Last System Startup Date", value=f'{sbb}{formattedLastBoot}', inline=False)
             
             await ctx.send(embed=embedInfo)
     
