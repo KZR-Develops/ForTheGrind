@@ -16,8 +16,8 @@ async def generate(self, interaction: discord.Interaction, type):
         guild = interaction.guild
         category = discord.utils.get(guild.categories, id=self.ticket_category_id)
         dashboard = discord.utils.get(guild.channels, id=self.ticket_dashboard_id)
-        self.total_ticket = category.channels
-        self.ticket_count = len(self.total_ticket) - 1
+        self.total_ticket = len(category.channels)
+        self.ticket_count = self.total_ticket - 1
         self.ticket_name = self.ticket_count + 1
         channel_name = f'ticket-{self.ticket_name}'
         overwrites = {
@@ -62,9 +62,6 @@ async def generate(self, interaction: discord.Interaction, type):
 class Setup(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
-        self.ticket_category_id = config['categories']['ticket']
-        self.ticket_role = config['roles']['ticketer']
-        self.ticket_dashboard_id = config['channels']['ticket_dashboard']
         self.cooldown = commands.CooldownMapping.from_cooldown(1, 600, commands.BucketType.member)
     
     @discord.ui.button(label="Create a Ticket", style=discord.ButtonStyle.red, custom_id="create:blurple")
@@ -78,9 +75,6 @@ class Setup(discord.ui.View):
         await interaction.response.send_message(embed=embedTypeSelector, view=TicketTypeSelector(), ephemeral=True)
 
 class TicketTypeSelector(discord.ui.View):
-    ticket_category_id = config['categories']['ticket']
-    ticket_role = config['roles']['ticketer']
-    ticket_dashboard_id = config['channels']['ticket_dashboard']
     
     types = [
         discord.SelectOption(label="Questions", value="question", description="Want to clarify something?", emoji="❔"),
@@ -126,8 +120,6 @@ class ReportTypeSelector(discord.ui.View):
             
     
 class AppealTypeSelector(discord.ui.View):
-    ticket_category_id = int(config['categories']['ticket'])
-    ticket_role = int(config['roles']['ticketer'])
     
     types = [
         discord.SelectOption(label="I have been warned", value="warned"),
