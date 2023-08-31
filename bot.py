@@ -6,6 +6,7 @@ import os
 import json
 import time
 import platform
+
 from dotenv import  load_dotenv
 
 from views.Ticket import Setup
@@ -43,12 +44,12 @@ dt_fmt = '%Y-%m-%d %H:%M:%S'
 formatter = logging.Formatter('[{asctime}] [{levelname:<8}] {name}: {message}', dt_fmt, style='{')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
-
-class Main(commands.Bot):
+        
+class Main(commands.AutoShardedBot):
     def __init__(self) -> None:
-        super().__init__(command_prefix=commands.when_mentioned_or(config['prefix']), intents=discord.Intents.all())
+        super().__init__(command_prefix=config['prefix'], intents=discord.Intents.all(), case_insensitive=True)
         self.added = False
-        self.remove_command("help")
+        # self.remove_command("help")
         
     async def setup_hook(self):
         for filename in os.listdir('./cogs'):
@@ -74,7 +75,7 @@ class Main(commands.Bot):
         pythonVersion = platform.python_version()
         prefix = (Style.BRIGHT + Back.BLACK + Fore.GREEN + '[' + time.strftime("%H:%M:%S", time.gmtime()) + ']' + Back.RESET + Fore.WHITE + Style.BRIGHT)
         
-        activity = discord.Activity(type=discord.ActivityType.listening, name=f"{config['prefix']}help | TDD")
+        activity = discord.Activity(type=discord.ActivityType.listening, name=f"{config['prefix']}help | FTG")
         await self.change_presence(activity=activity)
 
         

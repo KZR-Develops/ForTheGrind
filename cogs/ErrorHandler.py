@@ -18,5 +18,6 @@ class ErrorHandler(commands.Cog):
             print(f"[COMMAND ERROR]{error}")
             await ctx.send(embed=embedError, delete_after=5)
 
+
 async def setup(bot):
     await bot.add_cog(ErrorHandler(bot))
