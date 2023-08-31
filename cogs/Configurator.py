@@ -52,7 +52,7 @@ class ConfigLoader(commands.Cog):
                 if len(prefix) <= 4:
                     config['prefix'] = prefix
 
-                    with open(file="./config.json", mode="w") as configFile:
+                    with open("./config.json", "w") as configFile:
                         json.dump(config, configFile, indent=4)
 
                     embedSuccess = discord.Embed(description=f"``{prefix}`` is now set as the new command prefix.\nYou may need to restart the bot to load the changes.", color=0xb50000)
@@ -64,7 +64,6 @@ class ConfigLoader(commands.Cog):
                     embedError = discord.Embed(description=f"The command prefix should be less than 4 characters.", color=0xb50000)
                     await ctx.send(embed=embedError)
                 
-
 
 async def setup(bot):
     await bot.add_cog(ConfigLoader(bot))
