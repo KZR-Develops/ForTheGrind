@@ -1,4 +1,5 @@
 import asyncio
+import math
 import os
 import discord
 import datetime
@@ -16,8 +17,8 @@ async def generate(self, interaction: discord.Interaction, type):
         guild = interaction.guild
         category = discord.utils.get(guild.categories, id=self.ticket_category_id)
         dashboard = discord.utils.get(guild.channels, id=self.ticket_dashboard_id)
-        self.total_ticket = len(category.channels)
-        self.ticket_count = self.total_ticket - 1
+        self.total_ticket = category.channels
+        self.ticket_count = len(self.total_ticket) - 1
         self.ticket_name = self.ticket_count + 1
         channel_name = f'ticket-{self.ticket_name}'
         overwrites = {
@@ -27,8 +28,8 @@ async def generate(self, interaction: discord.Interaction, type):
         channel = await guild.create_text_channel(channel_name, category=category, overwrites=overwrites)
         
         if type == "question":
-            embedAssistance = discord.Embed(title=f"Please standby!", description=f"Hey there{author.mention}!\nA staff will be here shortly, please wait.\n<@&{self.ticket_role}>", timestamp=datetime.now())
-            embedAssistance.set_footer(text=f"Ticket ID: {self.ticket_name}")
+            embedAssistance = discord.Embed(title=f"Ticket Manager", description=f"Hey there {author.mention}!\nA <@&{self.ticket_role}> will be here shortly, please wait.", timestamp=datetime.now(), color=0xb50000)
+            embedAssistance.set_footer(text=f"Ticket ID: {self.ticket_name} • Type: Question")
             await channel.send(embed=embedAssistance)
             
             embedDashboard = discord.Embed(description=f"Type of Ticket: Question\nTicket Channel: {channel.mention}", color=interaction.user.color, timestamp=datetime.now())
@@ -37,8 +38,8 @@ async def generate(self, interaction: discord.Interaction, type):
             
             await dashboard.send(embed=embedDashboard)
         if type == "report":
-            embedAssistance = discord.Embed(title=f"Please standby!", description=f"Hey there{author.mention}!\n\nA staff will be here shortly, please wait.\n<@&{self.ticket_role}>\n\nWhile waiting please select the category you want to report.", timestamp=datetime.now())
-            embedAssistance.set_footer(text=f"Ticket ID: {self.ticket_name}")
+            embedAssistance = discord.Embed(title=f"Ticket Manager", description=f"Hey there {author.mention}!\nA <@&{self.ticket_role}> will be here shortly, please wait.", timestamp=datetime.now(), color=0xb50000)
+            embedAssistance.set_footer(text=f"Ticket ID: {self.ticket_name} • Type: Report")
             await channel.send(embed=embedAssistance, view=ReportTypeSelector())
             
             embedDashboard = discord.Embed(description=f"Type of Ticket: Report\nTicket Channel: {channel.mention}", color=interaction.user.color, timestamp=datetime.now())
@@ -47,9 +48,9 @@ async def generate(self, interaction: discord.Interaction, type):
             
             await dashboard.send(embed=embedDashboard)
         if type == "appeal":
-            embedAssistance = discord.Embed(title=f"Please standby!", description=f"Hey there!\n\nWe sincerely apologize for the actions of our moderator that resulted in a misconduct.\nIf you have proven that our moderator made a mistake, we are willing to take full responsibility.", timestamp=datetime.now())
-            embedAssistance.set_footer(text=f"Ticket ID: {self.ticket_name}")
-            await channel.send(embed=embedAssistance)   
+            embedAssistance = discord.Embed(title=f"Ticket Manager", description=f"Hey there {author.mention}!\nA <@&{self.ticket_role}> will be here shortly, please wait.", timestamp=datetime.now(), color=0xb50000)
+            embedAssistance.set_footer(text=f"Ticket ID: {self.ticket_name} • Type: Appeal")
+            await channel.send(embed=embedAssistance) 
             
             embedDashboard = discord.Embed(description=f"Type of Ticket: Appeal\nTicket Channel: {channel.mention}", color=interaction.user.color, timestamp=datetime.now())
             embedDashboard.set_author(name=f"A ticket was generated for {interaction.user.name}#{interaction.user.discriminator}", icon_url=interaction.user.avatar)
@@ -57,8 +58,9 @@ async def generate(self, interaction: discord.Interaction, type):
             
             await dashboard.send(embed=embedDashboard) 
         
-        embedCreated = discord.Embed(title="Ticket Creation", description=f"{author.mention}, Your ticket has been created in {channel.mention}.", timestamp=datetime.now())    
+        embedCreated = discord.Embed(title="Ticket Manager", description=f"{author.mention}, Your ticket has been created in {channel.mention}.", timestamp=datetime.now(), color=0xb50000)    
         await interaction.response.send_message(embed=embedCreated, ephemeral=True)
+
 class Setup(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
@@ -68,14 +70,28 @@ class Setup(discord.ui.View):
     async def create(self, interaction: discord.Interaction, button: discord.ui.Button):
         interaction.message.author = interaction.user
         retry = self.cooldown.get_bucket(interaction.message).update_rate_limit()
+
         if retry:
-            return await interaction.response.send_message(f"Slow down! You can create a ticket again in {round(retry, 1)} seconds.", ephemeral=True)
+            def convert_seconds(seconds):
+                if seconds > 60:
+                    minutes = seconds // 60
+                    seconds = seconds % 60
+                    rounded_seconds = math.floor(seconds)
+
+                    return f"{str(minutes).rstrip('.0')} minutes and {rounded_seconds} seconds"
+                else:
+                    return f"{rounded_seconds} seconds"
+                
+            return await interaction.response.send_message(f"Slow down! You can create a ticket again in {convert_seconds(retry)}", ephemeral=True)
         
         embedTypeSelector = discord.Embed(description="To assist you further, tell us why you are creating a ticket.", color=0xb50000)
         await interaction.response.send_message(embed=embedTypeSelector, view=TicketTypeSelector(), ephemeral=True)
 
 class TicketTypeSelector(discord.ui.View):
-    
+    ticket_category_id = config['categories']['ticket']
+    ticket_role = config['roles']['ticketer']
+    ticket_dashboard_id = config['channels']['ticket_dashboard']
+
     types = [
         discord.SelectOption(label="Questions", value="question", description="Want to clarify something?", emoji="❔"),
         discord.SelectOption(label="Report", value="report", description="To report a misbehaving user or broken features.", emoji="❕"),
@@ -94,9 +110,6 @@ class TicketTypeSelector(discord.ui.View):
             
         
 class ReportTypeSelector(discord.ui.View):
-    ticket_category_id = int(config['categories']['ticket'])
-    ticket_role = int(config['roles']['ticketer'])
-    ticket_dashboard_id = int(config['channels']['ticket_dashboard'])
     
     types = [
         discord.SelectOption(label="A member", value="member"),
