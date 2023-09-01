@@ -150,10 +150,10 @@ class ModerationTools(commands.Cog):
             # await member.kick(reason=reason)
             
             # Send a kick notice to the member
-            embedNotice = discord.Embed(description=f"Hey there {member.name}!\n\nThis message is sent to make you aware of the action we've made.\nYou have been removed from the server for violating our community guidelines.\n\nWe take the safety and well-being of our community seriously. Please respect our rules and guidelines to ensure a positive and enjoyable experience for all members.\n\nIf you were removed from the server and believe it was unjust, you can [submit an appeal](https://forms.gle/M6yTr78DkMycVpSY7) for reinstatement. Provide a clear explanation and any supporting evidence. We take moderation actions seriously and will not entertain frivolous appeals. Our team will review and make a decision as soon as possible.", color=0xf50000, timestamp=datetime.now())
+            embedNotice = discord.Embed(description=f"Hey there {member.name}!\n\nThis message is sent to make you aware of the action we've made.\nYou have been removed from the server for violating our community guidelines.\n\nWe take the safety and well-being of our community seriously. Please respect our rules and guidelines to ensure a positive and enjoyable experience for all members.\n\nIf you were removed from the server and believe it was unjust, you can file an appeal ticket on our server for reinstatement. Provide a clear explanation and any supporting evidence. We take moderation actions seriously and will not entertain frivolous appeals. Our team will review and make a decision as soon as possible.", color=0xb50000, timestamp=datetime.now())
             embedNotice.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon)
             embedNotice.add_field(name="Reason For The Action:", value=reason)
-            embedNotice.set_footer(text=f"Case ID: {case_number}")
+            embedNotice.set_footer(text=f"Case ID: {case_number} • Responsible Staff : {ctx.author.name}")
             
             await member.send(embed=embedNotice)
             
@@ -210,7 +210,7 @@ class ModerationTools(commands.Cog):
             embedNotice = discord.Embed(description=f"Hey there {member.name}!\n\nThis message is sent to make you aware of the action we've made.\nYou have been banned from the server for violating our community guidelines.\n\nWe take the safety and well-being of our community seriously. Please respect our rules and guidelines to ensure a positive and enjoyable experience for all members.\n\nIf you were removed from the server and believe it was unjust, you can [submit an appeal](https://forms.gle/M6yTr78DkMycVpSY7) for reinstatement. Provide a clear explanation and any supporting evidence. We take moderation actions seriously and will not entertain frivolous appeals. Our team will review and make a decision as soon as possible.", color=0xf50000, timestamp=datetime.now())
             embedNotice.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon)
             embedNotice.add_field(name="Reason For The Action:", value=reason)
-            embedNotice.set_footer(text=f"Case ID: {case_number}")
+            embedNotice.set_footer(text=f"Case ID: {case_number} • Responsible Staff : {ctx.author.name}")
             
             await member.send(embed=embedNotice)
             
