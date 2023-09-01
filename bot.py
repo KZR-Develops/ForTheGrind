@@ -56,8 +56,9 @@ class Main(commands.AutoShardedBot):
             if filename.endswith('.py'):
                 try:
                     await bot.load_extension(f'cogs.{filename[:-3]}')
-                    print('─' * 25)
+                    print('─' * 70)
                     print(f'{filename[:-3]} has been loaded with no errors.')
+                    print('─' * 70)
                 except Exception as e:
                     print('Failed to load extension {}\n{}: {}'.format(
                         filename    , type(e).__name__, e))
@@ -79,15 +80,15 @@ class Main(commands.AutoShardedBot):
         await self.change_presence(activity=activity)
 
         
-        print('─' * 60)
+        print('─' * 70)
         print(prefix + ' It took {:.2f}s to launch the program'.format(bootTime))
-        print('─' * 60)
+        print('─' * 70)
         print(prefix + f' Operating on Python {pythonVersion}')
         print(prefix + f' Running: discord v{dpyVersion}')
-        print('─' * 60)
+        print('─' * 70)
         print(prefix + f' Username: {bot.user}')
         print(prefix + f' ID: {bot.user.id}')
-        print('─' * 60)
+        print('─' * 70)
         
 bot = Main()
 
@@ -98,7 +99,5 @@ try:
     bot.run(dpyToken)
 except discord.errors.RateLimited(retry_after=60):
     os._exit(0)
-    os.system('start.bat')
 except discord.errors.HTTPException:
     os._exit(0)
-    os.system('start.bat')
