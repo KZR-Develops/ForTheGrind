@@ -43,20 +43,22 @@ class DeveloperTools(commands.Cog):
 
     @cog.command()
     async def unload(self, ctx, extension):
+        await ctx.message.delete()
         try:
             await self.bot.unload_extension(f'cogs.{extension}')
-
             embedAction = discord.Embed(description=f"{extension} has been unloaded with no errors.", color=0x00ff00)
-            await ctx.send(embed=embedAction, delete_after=5)
+            await ctx.send(embed=embedAction, delete_after=3)
         except Exception as e:
             embedError = discord.Embed(description=f"An error occured while unloading module named {extension}.\n {e}.", color=0xb50000)
-            await ctx.send(embed=embedError, delete_after=5)
+            await ctx.message.delete()
+            await ctx.send(embed=embedError, delete_after=3)
     
     @cog.command()
     async def load(self, ctx, extension):
+        await ctx.message.delete()
+
         try:
             await self.bot.reload_extension(f'cogs.{extension}')
-
             embedAction = discord.Embed(description=f"{extension} has been loaded with no errors.", color=0x00ff00)
             await ctx.send(embed=embedAction, delete_after=5)
         except Exception as e:
@@ -65,9 +67,10 @@ class DeveloperTools(commands.Cog):
 
     @cog.command()
     async def reload(self, ctx, extension):
+        await ctx.message.delete()
+
         try:
             await self.bot.reload_extension(f'cogs.{extension}')
-
             embedAction = discord.Embed(description=f"{extension} has been reloaded with no errors.", color=0x00ff00)
             await ctx.send(embed=embedAction, delete_after=5)
         except Exception as e:
@@ -77,6 +80,7 @@ class DeveloperTools(commands.Cog):
     @commands.command()
     @commands.is_owner()
     async def shutdown(self, ctx):
+        await ctx.message.delete()
         await self.bot.close()
         print("Closed the connection between the bot and the gateway.")
         self.bot.clear()

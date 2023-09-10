@@ -20,9 +20,12 @@ class Verification(commands.Cog):
         
     @commands.command()
     async def vsetup(self, ctx):
-        embedVerification = discord.Embed(title="New here?", description="Click the verify button below to get verified.", color=0x5865f2)
-        await ctx.send(embed=embedVerification, view=Verify())
+        divider = "<:Divider:1134737299515654198>" * 12
+
+        embedVerification = discord.Embed(color=0xb50000)
+        embedVerification.add_field(name="New here?", value=f"{divider}\nClick the verify button below to get verified.",)
         await ctx.message.delete()
+        await ctx.send(embed=embedVerification, view=Verify())
         
 async def setup(bot):
     await bot.add_cog(Verification(bot))

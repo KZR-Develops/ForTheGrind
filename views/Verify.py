@@ -7,7 +7,7 @@ class Verify(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
         
-    @discord.ui.button(label="Verify", style=discord.ButtonStyle.blurple, custom_id="verify:blurple")
+    @discord.ui.button(label="Verify", style=discord.ButtonStyle.danger, custom_id="verify:red")
     async def verify(self, interaction: discord.Interaction, button: discord.Button):
         unverified_id = 1146684980563558440
         verified_id = 1145298592173662269
