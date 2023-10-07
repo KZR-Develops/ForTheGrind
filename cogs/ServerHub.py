@@ -9,7 +9,7 @@ class Setup(commands.Cog):
     @commands.command()
     async def setupHub(self, ctx):
         startEmbed = discord.Embed(
-            description="**For the Grinds Esports** was built to be one of the top gaming organizations in the Philippines, with a focus on cultivating players in the country.\nFor the Grinds Esports was established in the year 2020.\n\nYou can check out more about us on our [Facebook Page](https://www.facebook.com/FTGEsportsGG)\nInvite your friends to join us here on our [Discord Server](https://discord.gg/GyNf93SAVf)",
+            description="**For the Grinds Esports** was built to be one of the top gaming organizations in the Philippines, with a focus on cultivating players in the country.\nFor the Grinds Esports was established in the year 2020.",
             color=0xb50000
         )
 
