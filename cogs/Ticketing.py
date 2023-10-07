@@ -4,7 +4,7 @@ import json
 
 from discord.ext import commands
 from datetime import datetime
-from views.Ticket import Setup, Settings, TicketTypeSelector, ReportTypeSelector, AppealTypeSelector
+from views.Ticket import ticketSetup, Settings
 
 with open('./config.json', "r") as f:
     config = json.load(f)
@@ -28,7 +28,7 @@ class TicketingSetup(commands.Cog):
     @ticket.command()
     async def setup(self, ctx):
         embedSetup = discord.Embed(title="Do you need help?", description="To get help from our staffs, click the button below.\n\nIt will automatically generate a channel to discuss your problem with our support team.", color=0xb50000)
-        await ctx.send(embed=embedSetup, view=Setup())
+        await ctx.send(embed=embedSetup, view=ticketSetup())
         await ctx.message.delete()
             
     @ticket.command()

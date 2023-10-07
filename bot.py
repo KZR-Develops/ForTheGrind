@@ -50,7 +50,7 @@ class Main(commands.AutoShardedBot):
     def __init__(self) -> None:
         super().__init__(command_prefix=commands.when_mentioned_or(config['prefix']), intents=discord.Intents.all(), case_insensitive=True)
         self.added = False
-        # self.remove_command("help")
+        self.remove_command("help")
         
     async def setup_hook(self):
         for filename in os.listdir('./cogs'):
@@ -68,6 +68,7 @@ class Main(commands.AutoShardedBot):
         if not self.added:
             self.add_view(StarupSettings())
             self.add_view(startHub())
+            self.add_view(ticketSetup())
             self.add_view(ProfileBuilder())
             self.added = True
         

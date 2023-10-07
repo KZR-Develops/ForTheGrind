@@ -1,5 +1,5 @@
 {
-    "total_count": 13,
+    "total_count": 20,
     "cases": [
         {
             "ID": 1,
@@ -92,6 +92,55 @@
             "Activity": "Purge",
             "Channel": "testing-grounds",
             "Time": "2023-10-07 09:44:27"
+        },
+        {
+            "ID": 14,
+            "Responsible Staff": "kaiii4222",
+            "Activity": "Purge",
+            "Channel": "\ud83d\udcd5\u2503hub",
+            "Time": "2023-10-07 15:21:47"
+        },
+        {
+            "ID": 15,
+            "Responsible Staff": "kaiii4222",
+            "Activity": "Purge",
+            "Channel": "\ud83d\udcd5\u2503hub",
+            "Time": "2023-10-07 15:35:29"
+        },
+        {
+            "ID": 16,
+            "Responsible Staff": "kaiii4222",
+            "Activity": "Purge",
+            "Channel": "\ud83d\udcd5\u2503hub",
+            "Time": "2023-10-07 15:35:29"
+        },
+        {
+            "ID": 17,
+            "Responsible Staff": "kaiii4222",
+            "Activity": "Purge",
+            "Channel": "\ud83d\udcd5\u2503hub",
+            "Time": "2023-10-07 15:35:29"
+        },
+        {
+            "ID": 18,
+            "Responsible Staff": "kzrdesigns",
+            "Activity": "Purge",
+            "Channel": "\ud83d\udcac\u2503chatroom",
+            "Time": "2023-10-07 16:40:07"
+        },
+        {
+            "ID": 19,
+            "Responsible Staff": "kaiii4222",
+            "Activity": "Purge",
+            "Channel": "\ud83d\udcd5\u2503hub",
+            "Time": "2023-10-07 16:57:42"
+        },
+        {
+            "ID": 20,
+            "Responsible Staff": "kaiii4222",
+            "Activity": "Purge",
+            "Channel": "testing-grounds",
+            "Time": "2023-10-07 16:57:42"
         }
     ]
 }

@@ -35,7 +35,7 @@ async def ticketDashboard(type, claimStatus, interaction: discord.Interaction):
 
     embed.add_field(name="Author Information", value=f"{b6}Name: {userName}\n{b6}User ID: {userID}")
 
-    await dashboard.send(embed=embed, interaction=interaction, view=closedButtons(interaction))
+    await dashboard.send(embed=embed, view=closedButtons(interaction))
 
 async def generate(self, interaction: discord.Interaction, type):
     
@@ -76,7 +76,7 @@ async def generate(self, interaction: discord.Interaction, type):
         embedCreated = discord.Embed(title="Ticket Manager", description=f"{author.mention}, Your ticket has been created in {channel.mention}.", timestamp=datetime.now(), color=0xb50000)    
         await interaction.response.send_message(embed=embedCreated, ephemeral=True)
 
-class Setup(discord.ui.View):
+class ticketSetup(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
         self.cooldown = commands.CooldownMapping.from_cooldown(1, 600, commands.BucketType.member)
@@ -231,7 +231,7 @@ class CloseConfirmation(discord.ui.View):
 
     @discord.ui.button(label="Cancel", style=discord.ButtonStyle.gray, custom_id="cancel:gray")
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.message.delete()
+        pass
         
     @discord.ui.button(label="Confirm", style=discord.ButtonStyle.danger, custom_id="confirmclose:danger")
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):

@@ -6,7 +6,7 @@ class ProfileBuilder(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
 
-    @discord.ui.button(label="Gender", style=discord.ButtonStyle.red, custom_id="pbGender:red")
+    @discord.ui.button(label="Gender", style=discord.ButtonStyle.red, custom_id="pbGender:red",)
     async def gender(self, interaction: discord.Interaction, button: discord.Button):
         if interaction.user.get_role(1159728857264439297):
             genderDone = discord.Embed(description="You already picked your pronouns. Contact an admin if you want to repick your option.")

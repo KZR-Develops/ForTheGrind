@@ -13,6 +13,9 @@ class ErrorHandler(commands.Cog):
         elif isinstance(error, commands.MissingPermissions):
             embedError = discord.Embed(description="You are missing the required permission to run this command.", color=0xb50000)
             await ctx.send(embed=embedError, delete_after=5)
+        elif isinstance(error, commands.MissingRequiredArgument):
+            embedError = discord.Embed(description="You are missing a required argument to run this command.", color=0xb50000)
+            await ctx.send(embed=embedError, delete_after=5)
         else:
             embedError = discord.Embed(description="Oops! Something went wrong.", color=0xb50000)
             print(f"[COMMAND ERROR]{error}")
