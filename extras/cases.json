@@ -1,5 +1,5 @@
 {
-    "total_count": 4,
+    "total_count": 13,
     "cases": [
         {
             "ID": 1,
@@ -28,6 +28,70 @@
             "Activity": "Purge",
             "Channel": "testing-grounds",
             "Time": "2023-09-01 20:04:45"
+        },
+        {
+            "ID": 5,
+            "Responsible Staff": "kaiii4222",
+            "User": "kzrdesigns",
+            "Status": "Warning",
+            "Reason": "testing",
+            "Time": "2023-10-06 14:44:47"
+        },
+        {
+            "ID": 6,
+            "Responsible Staff": "kaiii4222",
+            "Activity": "Purge",
+            "Channel": "\ud83d\udcec\u2503dashboard",
+            "Time": "2023-10-06 15:24:39"
+        },
+        {
+            "ID": 7,
+            "Responsible Staff": "kaiii4222",
+            "Activity": "Purge",
+            "Channel": "testing-grounds",
+            "Time": "2023-10-07 08:53:44"
+        },
+        {
+            "ID": 8,
+            "Responsible Staff": "kaiii4222",
+            "Activity": "Purge",
+            "Channel": "testing-grounds",
+            "Time": "2023-10-07 09:10:48"
+        },
+        {
+            "ID": 9,
+            "Responsible Staff": "kaiii4222",
+            "Activity": "Purge",
+            "Channel": "testing-grounds",
+            "Time": "2023-10-07 09:13:35"
+        },
+        {
+            "ID": 10,
+            "Responsible Staff": "kaiii4222",
+            "Activity": "Purge",
+            "Channel": "\ud83d\udcd5\u2503hub",
+            "Time": "2023-10-07 09:13:35"
+        },
+        {
+            "ID": 11,
+            "Responsible Staff": "kaiii4222",
+            "User": "kzrdesigns",
+            "Activity": "Clear Warnings",
+            "Time": "2023-10-07 09:44:27"
+        },
+        {
+            "ID": 12,
+            "Responsible Staff": "kaiii4222",
+            "Activity": "Purge",
+            "Channel": "testing-grounds",
+            "Time": "2023-10-07 09:44:27"
+        },
+        {
+            "ID": 13,
+            "Responsible Staff": "kaiii4222",
+            "Activity": "Purge",
+            "Channel": "testing-grounds",
+            "Time": "2023-10-07 09:44:27"
         }
     ]
 }

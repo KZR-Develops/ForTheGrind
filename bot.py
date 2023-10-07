@@ -9,8 +9,9 @@ import platform
 
 from dotenv import  load_dotenv
 
-from views.Ticket import Setup
-from views.Verify import Verify
+from views.Ticket import *
+from views.ReactionRoles import *
+from cogs.ServerHub import rulesP1
 
 from colorama import Back, Fore, Style
 from discord.ext import commands
@@ -47,7 +48,7 @@ logger.addHandler(handler)
         
 class Main(commands.AutoShardedBot):
     def __init__(self) -> None:
-        super().__init__(command_prefix=config['prefix'], intents=discord.Intents.all(), case_insensitive=True)
+        super().__init__(command_prefix=commands.when_mentioned_or(config['prefix']), intents=discord.Intents.all(), case_insensitive=True)
         self.added = False
         # self.remove_command("help")
         
@@ -66,7 +67,9 @@ class Main(commands.AutoShardedBot):
     async def on_ready(self):
         if not self.added:
             self.add_view(Setup())
-            self.add_view(Verify())
+            self.add_view(StarupSettings())
+            self.add_view(rulesP1())
+            self.add_view(ProfileBuilder())
             self.added = True
         
         endTime = time.time()
@@ -94,10 +97,4 @@ bot = Main()
 
 pid = os.getpid()
 
-
-try:
-    bot.run(dpyToken)
-except discord.errors.RateLimited(retry_after=60):
-    os._exit(0)
-except discord.errors.HTTPException:
-    os._exit(0)
+bot.run(dpyToken)
