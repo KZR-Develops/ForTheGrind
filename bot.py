@@ -11,7 +11,7 @@ from dotenv import  load_dotenv
 
 from views.Ticket import *
 from views.ReactionRoles import *
-from cogs.ServerHub import rulesP1
+from cogs.ServerHub import *
 
 from colorama import Back, Fore, Style
 from discord.ext import commands
@@ -66,9 +66,8 @@ class Main(commands.AutoShardedBot):
                     
     async def on_ready(self):
         if not self.added:
-            self.add_view(Setup())
             self.add_view(StarupSettings())
-            self.add_view(rulesP1())
+            self.add_view(startHub())
             self.add_view(ProfileBuilder())
             self.added = True
         
