@@ -1,4 +1,3 @@
-import asyncio
 import discord
 import logging
 import logging.handlers
@@ -6,6 +5,7 @@ import os
 import json
 import time
 import platform
+import argparse
 
 from dotenv import  load_dotenv
 
@@ -23,7 +23,7 @@ startTime = time.time()
 with open('config.json', 'r') as f:
     config = json.load(f)
     
-load_dotenv()
+load_dotenv(override=True)
 dpyToken = os.getenv('dpyToken')
     
 # Fetch application datas
@@ -45,7 +45,8 @@ dt_fmt = '%Y-%m-%d %H:%M:%S'
 formatter = logging.Formatter('[{asctime}] [{levelname:<8}] {name}: {message}', dt_fmt, style='{')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
-        
+
+
 class Main(commands.AutoShardedBot):
     def __init__(self) -> None:
         super().__init__(command_prefix=commands.when_mentioned_or(config['prefix']), intents=discord.Intents.all(), case_insensitive=True)
@@ -61,10 +62,33 @@ class Main(commands.AutoShardedBot):
                     print(f'{filename[:-3]} has been loaded with no errors.')
                     print('─' * 70)
                 except Exception as e:
-                    print('Failed to load extension {}\n{}: {}'.format(
-                        filename    , type(e).__name__, e))
-                    
+                    print('Failed to load extension {}\n{}: {}'.format(filename    , type(e).__name__, e))
+            
     async def on_ready(self):
+        pid = os.getpid()
+
+        # Read the existing .env content
+        with open('.env', 'r') as env_file:
+            env_content = env_file.read()
+
+        # Check if PID key already exists, update it, otherwise add a new line
+        # Format the PID line with the desired format
+        pid_line = f'PID="{pid}"'
+
+        # Read the existing .env content
+        with open('.env', 'r') as env_file:
+            env_content = env_file.read()
+
+        # Check if PID key already exists, update it, otherwise add a new line
+        if 'PID=' in env_content:
+            env_content = '\n'.join([pid_line if line.startswith('PID=') else line for line in env_content.split('\n')])
+        else:
+            env_content += f'\n{pid_line}'
+
+        # Write the updated content back to .env
+        with open('.env', 'w') as env_file:
+            env_file.write(env_content)
+        
         if not self.added:
             self.add_view(StarupSettings())
             self.add_view(startHub())
@@ -85,6 +109,8 @@ class Main(commands.AutoShardedBot):
         
         print('─' * 70)
         print(prefix + ' It took {:.2f}s to launch the program'.format(bootTime))
+        pid = os.getpid()
+        print(prefix + f" On PID: {pid}")
         print('─' * 70)
         print(prefix + f' Operating on Python {pythonVersion}')
         print(prefix + f' Running: discord v{dpyVersion}')
@@ -94,7 +120,29 @@ class Main(commands.AutoShardedBot):
         print('─' * 70)
         
 bot = Main()
-
-pid = os.getpid()
-
 bot.run(dpyToken)
+
+while True:
+    pid = os.getpid()
+
+        # Read the existing .env content
+    with open('.env', 'r') as env_file:
+        env_content = env_file.read()
+
+    # Check if PID key already exists, update it, otherwise add a new line
+    # Format the PID line with the desired format
+    pid_line = f'PID="{pid}"'
+
+    # Read the existing .env content
+    with open('.env', 'r') as env_file:
+        env_content = env_file.read()
+
+    # Check if PID key already exists, update it, otherwise add a new line
+    if 'PID=' in env_content:
+        env_content = '\n'.join([pid_line if line.startswith('PID=') else line for line in env_content.split('\n')])
+    else:
+        env_content += f'\n{pid_line}'
+
+    # Write the updated content back to .env
+    with open('.env', 'w') as env_file:
+        env_file.write(env_content)

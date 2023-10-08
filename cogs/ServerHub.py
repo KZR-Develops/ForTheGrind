@@ -1,3 +1,4 @@
+import asyncio
 from typing import Optional
 import discord
 
@@ -15,7 +16,7 @@ class Setup(commands.Cog):
         )
 
         startEmbed.add_field(name="<:website:1160096124527452250> Quick Links", value="<:Empty:1134737303324065873><:SBB:1134737393921036348> [Facebook Page](https://www.facebook.com/FTGEsportsGG)\n<:Empty:1134737303324065873><:SBB:1134737393921036348> [Discord Server](https://discord.gg/GyNf93SAVf)", inline=True)
-        startEmbed.add_field(name="<:redbook:1160100642891759686> Quick Information", value="<:Empty:1134737303324065873><:SBB:1134737393921036348> Co-Owners: <@713953519597518939> & <@239004733027778561>\n<:Empty:1134737303324065873><:SBB:1134737393921036348> Created at: July 28, 2023 @ 10:46 AM", inline=True)
+        startEmbed.add_field(name="<:redbook:1160100642891759686> Quick Information", value="<:Empty:1134737303324065873><:SBB:1134737393921036348> Co-Owners: <713953519597518939> & <239004733027778561>\n<:Empty:1134737303324065873><:SBB:1134737393921036348> Created at: July 28, 2023 @ 10:46 AM", inline=True)
 
         mainEmbed = discord.Embed(
             description="To get started, make sure you read the rules carefully and complete the verification process. Once you're done, feel free to explore and engage with the community. Happy navigating!\n\nYou can also start personalizing your profile by clicking the **Profile Builder** button.\nThis will show a list of categories of self-roles you can have to personalize your server profile.\n\nHappy Navigating!",
@@ -33,14 +34,39 @@ class startHub(discord.ui.View):
         super().__init__(timeout=None)
 
     @discord.ui.button(label="Server Rules", style=discord.ButtonStyle.gray, custom_id="sH:start:gray", emoji="<:redbook:1160100642891759686>")
-    async def start(self, interaction: discord.Interaction, button: discord.Button):
+    async def serverRules(self, interaction: discord.Interaction, button: discord.Button):
+
         rulesP1 = discord.Embed(
             title="Section 1: Discord's Rules",
             description=f"This server strictly abides the Discord's Community Guidelines and Terms of Service. Be sure to be familiar with it to avoid any issues.\n\n**Discord's Community Guidelines**: https://discord.com/guidelines\n**Discord's Terms of Service**: https://discord.com/tos",
             color=0xb50000
         )
 
-        await interaction.response.send_message(embed=rulesP1, view=rulesP2(), ephemeral=True, delete_after=240)
+        rulesP2 = discord.Embed(
+            title="Section 2: General Rules",
+            description=f"<:B1:1134737275318706278>Be Respectful: \n<:Empty:1134737303324065873><:SBB:1134737393921036348>Treat everyone with respect and courtesy. No harassment, hate speech, or personal attacks will be tolerated.\n\n<:B1:1134737275318706278> No NSFW Content:\n<:Empty:1134737303324065873><:SBB:1134737393921036348> Keep the server family-friendly. Do not share explicit, pornographic, or offensive material.\n\n<:B1:1134737275318706278> Stay On-Topic:\n<:Empty:1134737303324065873><:SBB:1134737393921036348> Keep discussions relevant to their channels. Avoid derailing conversations with unrelated topics.\n\n<:B1:1134737275318706278> No Spamming:\n<:Empty:1134737303324065873><:SBB:1134737393921036348> Do not flood the chat with repetitive messages, emojis, or unsolicited advertisements.\n\n<:B1:1134737275318706278> Real or Recognizable Nicknames\n<:Empty:1134737303324065873><:SBB:1134737393921036348> Use nicknames that are either your real name or easily recognizable and associated with your online identity. This helps other members address you properly.\n\n<:B1:1134737275318706278> Respect Privacy:\n<:Empty:1134737303324065873><:SBB:1134737393921036348> Do not share personal information about yourself or others that could compromise privacy or security.",
+            color=0xb50000
+        )
+
+        rulesP3 = discord.Embed(
+            title="Section 3: Text Channel Rules",
+            description=f"<:B1:1134737275318706278> No Excessive @mentions:\n<:Empty:1134737303324065873><:SBB:1134737393921036348> Refrain from constantly tagging or mentioning other members, especially without a valid reason.\n\n<:B1:1134737275318706278> No Advertising:\n<:Empty:1134737303324065873><:SBB:1134737393921036348> Do not promote external servers, products, or services without permission from the server administrators.\n\n<:B1:1134737275318706278> No Drama or Gossip:\n<:Empty:1134737303324065873><:SBB:1134737393921036348> Do not use the text channels to fuel drama or spread rumors about other members or outside entities.\n\n<:B1:1134737275318706278> No Excessive Caps or Emoji:\n<:Empty:1134737303324065873><:SBB:1134737393921036348> Avoid using excessive capital letters or overusing emojis, as it can be disruptive and difficult to read.\n\n<:B1:1134737275318706278> No Backseat Moderating:\n<:Empty:1134737303324065873><:SBB:1134737393921036348> Let the server staff handle rule violations. If you notice a rule breach, report it instead of trying to enforce the rules yourself.",
+            color=0xb50000
+        )
+
+        rulesP4 = discord.Embed(
+            title="Important Notice",
+            description=f"These rules are subject to change without prior notice, serving to maintain a thriving and positive community environment. Please make it a habit to review the rules regularly to prevent any misunderstandings or issues.",
+            color=0xb50000
+        )
+
+        if interaction.user.get_role(1145298592173662269):
+            message1 = await interaction.response.send_message(embed=rulesP1, ephemeral=True)
+            message2 = await interaction.followup.send(embed=rulesP2, ephemeral=True)
+            message3 = await interaction.followup.send(embed=rulesP3, ephemeral=True)
+            message4 = await interaction.followup.send(embed=rulesP4, ephemeral=True)
+        else:
+            await interaction.response.send_message(embed=rulesP1, view=rulesPg2(), ephemeral=True, delete_after=240)
 
     @discord.ui.button(label="Roles Info", style=discord.ButtonStyle.gray, custom_id="sH:rI:gray", emoji="<:user:1160095232331874358>")
     async def rolesInfo(self, interaction: discord.Interaction, button: discord.Button):
@@ -63,7 +89,7 @@ class startHub(discord.ui.View):
 
         await interaction.response.send_message(embed=profileBuilder, view=ProfileBuilder(), ephemeral=True, delete_after=120)
 
-class rulesP2(discord.ui.View):
+class rulesPg2(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
 
