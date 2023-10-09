@@ -1,3 +1,4 @@
+import json
 import socket
 import subprocess
 import os
@@ -42,6 +43,15 @@ def stop_bot(connection):
 def restart(connection):
     print("Initiating a restart.")
     stop_bot(connection)
+
+    with open('./config.json', 'r') as f:
+        config = json.load(f)
+
+    config['Restarted'] = "True"
+
+    with open('./config.json', 'w') as f:
+        json.dump(config, f)
+
     start_bot(connection)
 
 # Initialize the server socket

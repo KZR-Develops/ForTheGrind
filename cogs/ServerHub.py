@@ -16,7 +16,7 @@ class Setup(commands.Cog):
         )
 
         startEmbed.add_field(name="<:website:1160096124527452250> Quick Links", value="<:Empty:1134737303324065873><:SBB:1134737393921036348> [Facebook Page](https://www.facebook.com/FTGEsportsGG)\n<:Empty:1134737303324065873><:SBB:1134737393921036348> [Discord Server](https://discord.gg/GyNf93SAVf)", inline=True)
-        startEmbed.add_field(name="<:redbook:1160100642891759686> Quick Information", value="<:Empty:1134737303324065873><:SBB:1134737393921036348> Co-Owners: <713953519597518939> & <239004733027778561>\n<:Empty:1134737303324065873><:SBB:1134737393921036348> Created at: July 28, 2023 @ 10:46 AM", inline=True)
+        startEmbed.add_field(name="<:redbook:1160100642891759686> Quick Information", value="<:Empty:1134737303324065873><:SBB:1134737393921036348> Co-Owners: <@713953519597518939> & <@239004733027778561>\n<:Empty:1134737303324065873><:SBB:1134737393921036348> Created at: July 28, 2023 @ 10:46 AM", inline=True)
 
         mainEmbed = discord.Embed(
             description="To get started, make sure you read the rules carefully and complete the verification process. Once you're done, feel free to explore and engage with the community. Happy navigating!\n\nYou can also start personalizing your profile by clicking the **Profile Builder** button.\nThis will show a list of categories of self-roles you can have to personalize your server profile.\n\nHappy Navigating!",
@@ -214,7 +214,7 @@ class ProfileBuilder(discord.ui.View):
     async def pingRole(self, interaction: discord.Interaction, button: discord.Button):
 
         pingRoles = discord.Embed(
-            description="Select roles to receive targeted notifications about updates, giveaways, and events you care about. Stay informed and engaged with what matters to you.",
+            description="Select roles to receive targeted notifications that matters to you.",
             color=0xb50000
         )
 
@@ -225,9 +225,9 @@ class pingRole(discord.ui.View):
         super().__init__(timeout=None)
 
     options = [
-        discord.SelectOption(label="Updates", value="updates", description="Stay informed with the latest community news and changes."),
-        discord.SelectOption(label="Giveaways", value="giveaway", description="Get notified when a giveaway starts."),
-        discord.SelectOption(label="Events", value="events", description="Engage in exciting community gatherings and friendly competitions.")
+        discord.SelectOption(label="Updates", value="updates", description="Stay informed with the latest community news and changes.", emoji="<:community:1160393239996678204>"),
+        discord.SelectOption(label="Giveaways", value="giveaway", description="Get notified when a giveaway starts.", emoji="<:giftss:1160393434041958410>"),
+        discord.SelectOption(label="Events", value="events", description="Engage in exciting community gatherings and friendly competitions.", emoji="<:updates:1160393621812547705>")
     ]
 
     @discord.ui.select(placeholder="Pick an option", options=options)
@@ -244,7 +244,7 @@ class pingRole(discord.ui.View):
                 await interaction.response.send_message(embed=pingDone, ephemeral=True, delete_after=3)
             else:
                 await interaction.user.add_roles(updates)
-                embedRole = discord.Embed(description="Added <@&1145351148648284180> to your roles", color=0xb50000)
+                embedRole = discord.Embed(description="Added <:community:1160393239996678204> <@&1145351148648284180> to your roles", color=0xb50000)
                 await interaction.response.send_message(embed=embedRole, ephemeral=True, delete_after=3)
         if select.values[0] == "giveaway":
             if interaction.user.get_role(1145351002552270889):
@@ -253,7 +253,7 @@ class pingRole(discord.ui.View):
                 await interaction.response.send_message(embed=giveawaysDone, ephemeral=True, delete_after=3)
             else:
                 await interaction.user.add_roles(giveaways)
-                embedRole = discord.Embed(description="Added <@&1145351002552270889> to your roles", color=0xb50000)
+                embedRole = discord.Embed(description="Added <:giftss:1160393434041958410> <@&1145351002552270889> to your roles", color=0xb50000)
                 await interaction.response.send_message(embed=embedRole, ephemeral=True, delete_after=3)
         if select.values[0] == "events":
             if interaction.user.get_role(1145351092650127381):
@@ -262,7 +262,7 @@ class pingRole(discord.ui.View):
                 await interaction.response.send_message(embed=eventsDone, ephemeral=True, delete_after=3)
             else:
                 await interaction.user.add_roles(events)
-                embedRole = discord.Embed(description="Added <@&1145351092650127381> to your roles", color=0xb50000)
+                embedRole = discord.Embed(description="Added <:updates:1160393621812547705> <@&1145351092650127381> to your roles", color=0xb50000)
                 await interaction.response.send_message(embed=embedRole, ephemeral=True, delete_after=3)
 
         await interaction.user.add_roles(pingRoles)
@@ -272,9 +272,9 @@ class Gender(discord.ui.View):
         super().__init__(timeout=20)
 
     options = [
-        discord.SelectOption(label="He/Him", value="h", emoji=":male_sign:"),
-        discord.SelectOption(label="She/Her", value="s", emoji=":female_sign:"),
-        discord.SelectOption(label="They/Them", value="t", emoji=":star:")
+        discord.SelectOption(label="He/Him", value="h"),
+        discord.SelectOption(label="She/Her", value="s"),
+        discord.SelectOption(label="They/Them", value="t")
     ]
 
     @discord.ui.select(placeholder="Pick an option", options=options)
@@ -360,9 +360,9 @@ class Games(discord.ui.View):
         super().__init__(timeout=20)
 
     options = [
-        discord.SelectOption(label="Mobile Legends: Bang Bang", value="1"),
-        discord.SelectOption(label="Valorant", value="2"),
-        discord.SelectOption(label="Call of Duty: Mobile", value="3")
+        discord.SelectOption(label="Mobile Legends: Bang Bang", value="1", emoji="<:ml:1160491413847429261>"),
+        discord.SelectOption(label="Valorant", value="2", emoji="<:valo:1160491417332895836>"),
+        discord.SelectOption(label="Call of Duty: Mobile", value="3", emoji="<:codm:1160491412027093092>")
     ]
 
     @discord.ui.select(placeholder="Pick an option", options=options)
@@ -378,7 +378,7 @@ class Games(discord.ui.View):
                 await interaction.response.send_message(embed=gameDone, ephemeral=True, delete_after=3)
             else:
                 await interaction.user.add_roles(ml)
-                embedRole = discord.Embed(description="Added <@&1159723941858922587> to your roles")
+                embedRole = discord.Embed(description="Added <:ml:1160491413847429261> <@&1159723941858922587> to your roles")
                 await interaction.response.send_message(embed=embedRole, ephemeral=True, delete_after=3)
         if select.values[0] == "2":
             if interaction.user.get_role(1159724038055272531):
@@ -386,7 +386,7 @@ class Games(discord.ui.View):
                 await interaction.response.send_message(embed=gameDone, ephemeral=True, delete_after=3)
             else:
                 await interaction.user.add_roles(val)
-                embedRole = discord.Embed(description="Added <@&1159724038055272531> to your roles")
+                embedRole = discord.Embed(description="Added <:valo:1160491417332895836> <@&1159724038055272531> to your roles")
                 await interaction.response.send_message(embed=embedRole, ephemeral=True, delete_after=3)
         if select.values[0] == "3":
             if interaction.user.get_role(1159723897323798538):
@@ -394,7 +394,7 @@ class Games(discord.ui.View):
                 await interaction.response.send_message(embed=gameDone, ephemeral=True, delete_after=3)
             else:
                 await interaction.user.add_roles(codm)
-                embedRole = discord.Embed(description="Added <@&1159723897323798538> to your roles")
+                embedRole = discord.Embed(description="Added <:codm:1160491412027093092> <@&1159723897323798538> to your roles")
                 await interaction.response.send_message(embed=embedRole, ephemeral=True, delete_after=3)
 
         await interaction.user.add_roles(selfRole)

@@ -65,6 +65,15 @@ class Main(commands.AutoShardedBot):
                     print('Failed to load extension {}\n{}: {}'.format(filename    , type(e).__name__, e))
             
     async def on_ready(self):
+        if config['Restarted'] == "True":
+            devChannel = self.get_channel(1134737529443196988)
+            await devChannel.send("Restart successful!")
+
+            config['Restarted'] = "False"
+
+            with open('./config.json', 'w') as f:
+                json.dump(config, f)
+
         pid = os.getpid()
 
         # Read the existing .env content

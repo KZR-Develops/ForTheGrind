@@ -1,4 +1,5 @@
 import asyncio
+import subprocess
 import time
 import discord
 import os
@@ -50,6 +51,7 @@ class DeveloperTools(commands.Cog):
             await ctx.send(embed=embedAction, delete_after=3)
         except Exception as e:
             embedError = discord.Embed(description=f"An error occured while unloading module named {extension}.\n {e}.", color=0xb50000)
+            print(f"[EXTENSION ERROR] An error occured while unloading module named {extension}.\n {e}.")
             await ctx.message.delete()
             await ctx.send(embed=embedError, delete_after=3)
     
@@ -63,27 +65,66 @@ class DeveloperTools(commands.Cog):
             await ctx.send(embed=embedAction, delete_after=5)
         except Exception as e:
             embedError = discord.Embed(description=f"An error occured while loading module named {extension}.\n {e}.", color=0xb50000)
+            print(f"[EXTENSION ERROR] An error occured while loading module named {extension}.\n {e}.")
             await ctx.send(embed=embedError, delete_after=5)
 
     @cog.command()
-    async def reload(self, ctx, extension):
+    async def reload(self, ctx, extension: str=None):
         await ctx.message.delete()
-
-        try:
-            await self.bot.reload_extension(f'cogs.{extension}')
-            embedAction = discord.Embed(description=f"{extension} has been reloaded with no errors.", color=0x00ff00)
-            await ctx.send(embed=embedAction, delete_after=5)
-        except Exception as e:
-            embedError = discord.Embed(description=f"An error occured while unloading module named {extension}.\n {e}.", color=0xb50000)
-            await ctx.send(embed=embedError, delete_after=5)
+        if extension != None:
+            try:
+                await self.bot.reload_extension(f'cogs.{extension}')
+                embedAction = discord.Embed(description=f"{extension} has been reloaded with no errors.", color=0x00ff00)
+                await ctx.send(embed=embedAction, delete_after=5)
+            except Exception as e:
+                embedError = discord.Embed(description=f"An error occured while reloading module named {extension}.\n {e}.", color=0xb50000)
+                print(f"[EXTENSION ERROR] An error occured while reloading module named {extension}.\n {e}.")
+                await ctx.send(embed=embedError, delete_after=5)
+        else:
+            for filename in os.listdir('./cogs'):
+                if filename.endswith('.py'):
+                    try:
+                        await self.bot.reload_extension(f'cogs.{filename[:-3]}')
+                        embedAction = discord.Embed(description=f"{filename[:-3]} has been reloaded with no errors.", color=0x00ff00)
+                        await ctx.send(embed=embedAction, delete_after=5)
+                        print('─' * 70)
+                        print(f'{filename[:-3]} has been reloaded with no errors.')
+                        print('─' * 70)
+                    except Exception as e:
+                        embedError = discord.Embed(description=f"An error occured while reloading module named {filename[:-3]}.\n {e}.", color=0xb50000)
+                        print(f"[EXTENSION ERROR] An error occured while reloading module named {filename[:-3]}.\n {e}.")
+                        await ctx.send(embed=embedError, delete_after=5)
 
     @commands.command()
     @commands.is_owner()
     async def shutdown(self, ctx):
+        await ctx.send("Shutting down...")
+        config['Restarted'] == "False"
+
+        with open('./config.json', 'w') as f:
+            json.dump(config, f)
+
+        await ctx.message.delete()
+        await asyncio.sleep(5)
+        await self.bot.close()
+        print("Closed the connection between the bot and the gateway.")
+
+        self.bot.clear()
+        os._exit(0)
+
+    @commands.command()
+    @commands.is_owner()
+    async def restart(self, ctx):
+        await ctx.send("Initiating a restart...")
         await ctx.message.delete()
         await self.bot.close()
         print("Closed the connection between the bot and the gateway.")
-        self.bot.clear()
+        pid = os.getpid()
+        time.sleep(10) # Await for other tasks to finish
+        subprocess.Popen(['start', 'cmd', '/c', 'start_bot.bat'], shell=True)
+        print("Bot started on another process...")
+        time.sleep(10) 
+        os.system(f"taskkill /F /PID {pid}")
         os._exit(0)
 
 async def setup(bot):
