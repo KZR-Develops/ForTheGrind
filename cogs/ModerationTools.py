@@ -175,9 +175,8 @@ class ModerationTools(commands.Cog):
             await member.kick(reason=reason)
             
             # Send a kick notice to the member
-            embedNotice = discord.Embed(description=f"Hey there {member.name}!\n\nThis message is sent to make you aware of the action we've made.\nYou have been removed from the server for violating our community guidelines.\n\nWe take the safety and well-being of our community seriously. Please respect our rules and guidelines to ensure a positive and enjoyable experience for all members.\n\nIf you were removed from the server and believe it was unjust, you can file an appeal ticket on our server for reinstatement. Provide a clear explanation and any supporting evidence. We take moderation actions seriously and will not entertain frivolous appeals. Our team will review and make a decision as soon as possible.", color=0xb50000, timestamp=datetime.now())
+            embedNotice = discord.Embed(description=f"Hey there {member.name}!\n\nThis message is sent to make you aware of the action we've made.\nYou have been removed from the server for violating our community guidelines.\n\nWe take the safety and well-being of our community seriously. Please respect our rules and guidelines to ensure a positive and enjoyable experience for all members.\n\nIf you were removed from the server and believe it was unjust, you can file an appeal ticket on our server for reinstatement. Provide a clear explanation and any supporting evidence. We take moderation actions seriously and will not entertain frivolous appeals. Our team will review and make a decision as soon as possible.\n\nHere's the reason why you were kicked:\n<:Empty:1134737303324065873><:SBM:1134737397746257940> {reason}", color=0xb50000, timestamp=datetime.now())
             embedNotice.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon)
-            embedNotice.add_field(name="Reason For The Action:", value=reason)
             embedNotice.set_footer(text=f"Case ID: {case_number} • Responsible Staff : {ctx.author.name}")
             
             await member.send(embed=embedNotice)
@@ -189,7 +188,7 @@ class ModerationTools(commands.Cog):
             sbb = '<:Empty:1134737303324065873><:SBB:1134737393921036348>'
 
             if member.id in warnings:
-                totalWarnings = f"warnings[str(member.id)]['WarningCount']" + " Infractions"
+                totalWarnings = f"{warnings[str(member.id)]['WarningCount']}" + " Infractions"
             else:
                 totalWarnings = "No Active Infractions"
 
@@ -208,9 +207,13 @@ class ModerationTools(commands.Cog):
             await ctx.send(embed=embedError, delete_after=3)
         else:
             await ctx.message.delete()
+
             # Load the JSON file containing the cases
             with open('./extras/cases.json', 'r') as f:
                 cases = json.load(f)
+
+            with open("./extras/warnings.json", "r") as f:
+                warnings = json.load(f)
             
             # Increment the case number
             case_number = cases['total_count'] + 1
@@ -234,26 +237,34 @@ class ModerationTools(commands.Cog):
             # Save the JSON file
             with open('./extras/cases.json', 'w') as f:
                 json.dump(cases, f, indent=4)
-                
+            
+            # Send a ban notice to the member
+            embedNotice = discord.Embed(description=f"Hey there {member.name}!\n\nThis message is sent to make you aware of the action we've made.\nYou have been banned from the server for violating our community guidelines.\n\nWe take the safety and well-being of our community seriously. Please respect our rules and guidelines to ensure a positive and enjoyable experience for all members.\n\nIf you were removed from the server and believe it was unjust, you can [submit an appeal](https://forms.gle/M6yTr78DkMycVpSY7) for reinstatement. Provide a clear explanation and any supporting evidence. We take moderation actions seriously and will not entertain frivolous appeals. Our team will review and make a decision as soon as possible.\n\nHere's the reason why you were banned:\n<:Empty:1134737303324065873><:SBM:1134737397746257940> {reason}", color=0xf50000, timestamp=datetime.now())
+            embedNotice.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon)
+            embedNotice.set_footer(text=f"Case ID: {case_number} • Responsible Staff : {ctx.author.name}")
+            
+            await member.send(embed=embedNotice)
+
             # Sends a message on the channel and bans the member
             embedAction = discord.Embed(description=f"{member.name} has been banned from the server for violating our community guidelines.", color=0xf50000)
             await ctx.send(embed=embedAction)
             await member.ban(reason=reason)
             
-            # Send a ban notice to the member
-            embedNotice = discord.Embed(description=f"Hey there {member.name}!\n\nThis message is sent to make you aware of the action we've made.\nYou have been banned from the server for violating our community guidelines.\n\nWe take the safety and well-being of our community seriously. Please respect our rules and guidelines to ensure a positive and enjoyable experience for all members.\n\nIf you were removed from the server and believe it was unjust, you can [submit an appeal](https://forms.gle/M6yTr78DkMycVpSY7) for reinstatement. Provide a clear explanation and any supporting evidence. We take moderation actions seriously and will not entertain frivolous appeals. Our team will review and make a decision as soon as possible.", color=0xf50000, timestamp=datetime.now())
-            embedNotice.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon)
-            embedNotice.add_field(name="Reason For The Action:", value=reason)
-            embedNotice.set_footer(text=f"Case ID: {case_number} • Responsible Staff : {ctx.author.name}")
-            
-            await member.send(embed=embedNotice)
-            
             # Log the moderation activity
             modlogs = self.bot.get_channel(int(modlogsID))
-            embedLog = discord.Embed(color=0xf50000, timestamp=datetime.now())
-            embedLog.set_author(name=f"{member.name}#{member.discriminator} has been banned", icon_url=member.avatar)
-            embedLog.add_field(name="Responsible Staff", value=ctx.author, inline=True)
-            embedLog.add_field(name="Reason", value=reason, inline=False)
+            sbt = '<:Empty:1134737303324065873><:SBM:1134737397746257940>'
+            sbm = '<:Empty:1134737303324065873><:SBM:1134737397746257940>'
+            sbb = '<:Empty:1134737303324065873><:SBB:1134737393921036348>'
+
+            if member.id in warnings:
+                totalWarnings = f"{warnings[str(member.id)]['WarningCount']}" + " Infractions"
+            else:
+                totalWarnings = "No Active Infractions"
+
+            embedLog = discord.Embed(color=0xb50000, timestamp=datetime.now())
+            embedLog.set_author(name=f"Automatic Logging System")
+            embedLog.add_field(name="<:Empty:1134737303324065873>", value=f"{sbt} Activity: User Banned\n{sbm} Username: {member.display_name}\n{sbm} User ID: {member.id}\n{sbm}Total Warnings of User: {totalWarnings}\n{sbm}Staff Responsible: {ctx.author.name}\n{sbb}Reason: {reason}")
+            embedLog.set_footer(text=f"Case ID: {case_number}")
             await modlogs.send(embed=embedLog)
         
     ### Warning System ###
@@ -302,11 +313,29 @@ class ModerationTools(commands.Cog):
                 }
             else:
                 modlogs = self.bot.get_channel(int(modlogsID))
-                embedLog = discord.Embed(color=0xf50000, timestamp=datetime.now())
-                embedLog.set_author(name=f"{member.name} has been kicked for surpassing the maximum amount of warnings.", icon_url=member.avatar)
-                embedLog.add_field(name="Responsible Staff", value=ctx.author, inline=True)
-                embedLog.add_field(name="Reason", value=reason, inline=False)
+                sbt = '<:Empty:1134737303324065873><:SBM:1134737397746257940>'
+                sbm = '<:Empty:1134737303324065873><:SBM:1134737397746257940>'
+                sbb = '<:Empty:1134737303324065873><:SBB:1134737393921036348>'
+
+                if str(member.id) in warnings:
+                    totalWarnings = f"{warnings[str(member.id)]['WarningCount']}" + " Infractions"
+                else:
+                    totalWarnings = "No Active Infractions"
+
+                embed = discord.Embed(description=f"{member.name} has been automatically kicked for reaching the amount of maximum infractions.", color=0xb50000)
+                await ctx.send(embed=embed, delete_after=5)
+                
+                embedLog = discord.Embed(color=0xb50000, timestamp=datetime.now())
+                embedLog.set_author(name=f"Automatic Logging System")
+                embedLog.add_field(name="<:Empty:1134737303324065873>", value=f"{sbt} Activity: User Kicked\n{sbm} Username: {member.display_name}\n{sbm} User ID: {member.id}\n{sbm}Total Warnings of User: {totalWarnings}\n{sbm}Staff Responsible: {ctx.author.name}\n{sbb}Reason: Reached the maximum amount of Infractions.")
+                embedLog.set_footer(text=f"Case ID: {case_number}")
                 await modlogs.send(embed=embedLog)
+
+                embedNotice = discord.Embed(description=f"Hey there {member.name}!\n\nThis message is sent to make you aware of the action we've made.\nYou have been automatically kicked from the server for reaching the maximum amount of violations in our community guidelines.\n\nWe take the safety and well-being of our community seriously. Please respect our rules and guidelines to ensure a positive and enjoyable experience for all members.\n\nIf you were removed from the server and believe it was unjust, you can file an appeal ticket on our server for reinstatement. Provide a clear explanation and any supporting evidence. We take moderation actions seriously and will not entertain frivolous appeals. Our team will review and make a decision as soon as possible.\n\nHere's the reason why you were automatically been kicked:\n<:Empty:1134737303324065873><:SBM:1134737397746257940> {reason}", color=0xb50000, timestamp=datetime.now())
+                embedNotice.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon)
+                embedNotice.set_footer(text=f"Case ID: {case_number} • Responsible Staff : {ctx.author.name}")
+            
+                await member.send(embed=embedNotice)
 
                 await member.kick(reason=reason)
         
@@ -320,13 +349,19 @@ class ModerationTools(commands.Cog):
             
             # Log the moderation activity
             modlogs = self.bot.get_channel(int(modlogsID))
-            embedLog = discord.Embed(color=0xf50000, timestamp=datetime.now())
-            embedLog.set_author(name=f"Warning for {member.name}#{member.discriminator}", icon_url=member.avatar)
-            embedLog.add_field(name=f"Total Warnings", value=warning_number, inline=True)
-            embedLog.add_field(name="Responsible Staff", value=ctx.author, inline=True)
-            embedLog.add_field(name="Reason", value=reason, inline=False)
-            embedLog.set_footer(text=f"Member ID: {member.id} • Case ID: {case_number}")
-            
+            sbt = '<:Empty:1134737303324065873><:SBM:1134737397746257940>'
+            sbm = '<:Empty:1134737303324065873><:SBM:1134737397746257940>'
+            sbb = '<:Empty:1134737303324065873><:SBB:1134737393921036348>'
+
+            if str(member.id) in warnings:
+                totalWarnings = f"{warnings[str(member.id)]['WarningCount']}" + " Infractions"
+            else:
+                totalWarnings = "No Active Infractions"
+
+            embedLog = discord.Embed(color=0xb50000, timestamp=datetime.now())
+            embedLog.set_author(name=f"Automatic Logging System")
+            embedLog.add_field(name="<:Empty:1134737303324065873>", value=f"{sbt} Activity: User Warned\n{sbm} Username: {member.display_name}\n{sbm} User ID: {member.id}\n{sbm}Total Warnings of User: {totalWarnings}\n{sbm}Staff Responsible: {ctx.author.name}\n{sbb}Reason: {reason}")
+            embedLog.set_footer(text=f"Case ID: {case_number}")
             await modlogs.send(embed=embedLog)
     
     @commands.command()
@@ -383,10 +418,20 @@ class ModerationTools(commands.Cog):
 
             # Log the moderation activity
             modlogs = self.bot.get_channel(int(modlogsID))
-            embedLog = discord.Embed(color=0x9acd32, timestamp=datetime.now())
-            embedLog.set_author(name=f"Cleared all warnings for {member.name}#{member.discriminator}", icon_url=member.avatar)
+            sbt = '<:Empty:1134737303324065873><:SBM:1134737397746257940>'
+            sbm = '<:Empty:1134737303324065873><:SBM:1134737397746257940>'
+            sbb = '<:Empty:1134737303324065873><:SBB:1134737393921036348>'
+
+            if member.id in warnings:
+                totalWarnings = f"{warnings[str(member.id)]['WarningCount']}" + " Infractions"
+            else:
+                totalWarnings = "No Active Infractions"
+
+            embedLog = discord.Embed(color=0xb50000, timestamp=datetime.now())
+            embedLog.set_author(name=f"Automatic Logging System")
+            embedLog.add_field(name="<:Empty:1134737303324065873>", value=f"{sbm} Activity: Cleared Warnings for {member.name}\n{sbb}Staff Responsible: {ctx.author.name}")
             embedLog.set_footer(text=f"Case ID: {case_number}")
-            
+
             await modlogs.send(embed=embedLog)
             
     @commands.command(aliases=["warnings", "checkwarns", "warns"])
@@ -480,7 +525,7 @@ class ModerationTools(commands.Cog):
         
         await modlogs.send(embed=embedLog)
         
-    @commands.command()
+    @commands.command(aliases=["unlockdown", "liftlock"])
     @commands.has_permissions(administrator=True)
     async def unlock(self, ctx):
         
@@ -532,7 +577,8 @@ class ModerationTools(commands.Cog):
         
         # Log the moderation activity
         modlogs = self.bot.get_channel(int(modlogsID))
-        embedLog = discord.Embed(title="Moderation Activity: Lockdown Lifted", color=0x00ff00, timestamp=datetime.now())
+        embedLog = discord.Embed(color=0xfffffff, timestamp=datetime.now())
+        embedLog.set_author(name="Lockdown mode has been lifted.", icon_url=ctx.guild.icon)
         embedLog.set_footer(text=f"Case ID: {case_number}")
         
         await modlogs.send(embed=embedLog)

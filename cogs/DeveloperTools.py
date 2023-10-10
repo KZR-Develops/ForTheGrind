@@ -83,17 +83,22 @@ class DeveloperTools(commands.Cog):
         else:
             for filename in os.listdir('./cogs'):
                 if filename.endswith('.py'):
-                    try:
-                        await self.bot.reload_extension(f'cogs.{filename[:-3]}')
-                        embedAction = discord.Embed(description=f"{filename[:-3]} has been reloaded with no errors.", color=0x00ff00)
-                        await ctx.send(embed=embedAction, delete_after=5)
-                        print('─' * 70)
-                        print(f'{filename[:-3]} has been reloaded with no errors.')
-                        print('─' * 70)
-                    except Exception as e:
-                        embedError = discord.Embed(description=f"An error occured while reloading module named {filename[:-3]}.\n {e}.", color=0xb50000)
-                        print(f"[EXTENSION ERROR] An error occured while reloading module named {filename[:-3]}.\n {e}.")
-                        await ctx.send(embed=embedError, delete_after=5)
+                    if not filename.startswith("DeveloperTools"):
+                        try:
+                            await asyncio.sleep(3)
+                            await self.bot.reload_extension(f'cogs.{filename[:-3]}')
+                            embedAction = discord.Embed(description=f"{filename[:-3]} has been reloaded with no errors.", color=0x00ff00)
+                            await ctx.send(embed=embedAction, delete_after=5)
+                            print('─' * 70)
+                            print(f'{filename[:-3]} has been reloaded with no errors.')
+                            print('─' * 70)
+                        except Exception as e:
+                            embedError = discord.Embed(description=f"An error occured while reloading module named {filename[:-3]}.\n {e}.", color=0xb50000)
+                            print(f"[EXTENSION ERROR] An error occured while reloading module named {filename[:-3]}.\n {e}.")
+                            await ctx.send(embed=embedError, delete_after=5)
+            
+            embedAction = discord.Embed(description=f"All plugins has been reloaded successfuly with no errors.", color=0x00ff00)
+            await ctx.send(embed=embedAction, delete_after=10)
 
     @commands.command()
     @commands.is_owner()

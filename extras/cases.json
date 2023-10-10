@@ -1,5 +1,5 @@
 {
-    "total_count": 64,
+    "total_count": 65,
     "cases": [
         {
             "ID": 1,
@@ -445,6 +445,13 @@
             "Status": "Warning",
             "Reason": "testing",
             "Time": "2023-10-09 18:33:24"
+        },
+        {
+            "ID": 65,
+            "Responsible Staff": "kaiii4222",
+            "User": "kzrdesigns",
+            "Activity": "Clear Warnings",
+            "Time": "2023-10-10 19:42:39"
         }
     ]
 }

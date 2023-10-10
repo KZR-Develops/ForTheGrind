@@ -1,35 +1,20 @@
 {
     "1119509017996296312": {
-        "WarningCount": 6,
+        "WarningCount": "3",
         "1": {
-            "Reason": null,
+            "Reason": "testing 1",
             "Staff Responsible": "kaiii4222",
-            "Time": "2023-10-08 15:27:38.329303"
+            "Time": "2023-10-10 19:48:07.358888"
         },
         "2": {
-            "Reason": null,
+            "Reason": "testing 2",
             "Staff Responsible": "kaiii4222",
-            "Time": "2023-10-08 15:33:05.121804"
+            "Time": "2023-10-10 19:49:57.170901"
         },
         "3": {
-            "Reason": null,
+            "Reason": "last warning",
             "Staff Responsible": "kaiii4222",
-            "Time": "2023-10-08 15:33:17.414298"
-        },
-        "4": {
-            "Reason": null,
-            "Staff Responsible": "kaiii4222",
-            "Time": "2023-10-08 15:33:23.011227"
-        },
-        "5": {
-            "Reason": null,
-            "Staff Responsible": "kaiii4222",
-            "Time": "2023-10-08 15:33:40.080844"
-        },
-        "6": {
-            "Reason": null,
-            "Staff Responsible": "kaiii4222",
-            "Time": "2023-10-08 15:42:43.412238"
+            "Time": "2023-10-10 19:50:29.104187"
         }
     }
 }
