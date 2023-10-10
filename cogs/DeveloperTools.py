@@ -120,6 +120,7 @@ class DeveloperTools(commands.Cog):
     @commands.command()
     @commands.is_owner()
     async def restart(self, ctx):
+        await asyncio.sleep(5)
         await ctx.send("Initiating a restart...")
         await ctx.message.delete()
         await self.bot.close()

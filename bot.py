@@ -15,6 +15,7 @@ from cogs.ServerHub import *
 
 from colorama import Back, Fore, Style
 from discord.ext import commands
+from cogs.utils.utility import set_boot_time
 
 # Get the start time 
 startTime = time.time()
@@ -129,29 +130,5 @@ class Main(commands.AutoShardedBot):
         print('─' * 70)
         
 bot = Main()
+set_boot_time()
 bot.run(dpyToken)
-
-while True:
-    pid = os.getpid()
-
-        # Read the existing .env content
-    with open('.env', 'r') as env_file:
-        env_content = env_file.read()
-
-    # Check if PID key already exists, update it, otherwise add a new line
-    # Format the PID line with the desired format
-    pid_line = f'PID="{pid}"'
-
-    # Read the existing .env content
-    with open('.env', 'r') as env_file:
-        env_content = env_file.read()
-
-    # Check if PID key already exists, update it, otherwise add a new line
-    if 'PID=' in env_content:
-        env_content = '\n'.join([pid_line if line.startswith('PID=') else line for line in env_content.split('\n')])
-    else:
-        env_content += f'\n{pid_line}'
-
-    # Write the updated content back to .env
-    with open('.env', 'w') as env_file:
-        env_file.write(env_content)

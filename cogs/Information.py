@@ -3,6 +3,7 @@ import json
 import discord
 
 from datetime import datetime
+from cogs.utils.utility import get_boot_time, format_boot_time
 from discord.ext import commands
 
 with open('config.json') as f:
@@ -11,7 +12,6 @@ with open('config.json') as f:
 class Information(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.startTime = datetime.now()
 
     @commands.group(name="info")
     async def info(self, ctx):
@@ -26,11 +26,12 @@ class Information(commands.Cog):
                 prodInfo = json.load(f)
             
         
-            lastBoot = self.startTime
+            lastBoot = get_boot_time()
+
             
             version = prodInfo['Version']
             phase = prodInfo['Phase']
-            formattedLastBoot = self.startTime.strftime("%B %d, %Y @ %I:%M %p")
+            formattedLastBoot = format_boot_time("%A, %d %B %Y at %I:%M %p")
             dpyVersion = discord.__version__
             currentTime = datetime.now()
             uptime = currentTime - lastBoot
@@ -137,44 +138,33 @@ class Information(commands.Cog):
     
     @commands.command()
     async def uptime(self, ctx):
-        
-        lastBoot = self.startTime
-        currentTime = datetime.now()
-        uptime = currentTime - lastBoot
+        last_boot = get_boot_time()
+        current_time = datetime.now()
+        uptime = current_time - last_boot
+
+        # Calculate days, hours, minutes, and seconds
         uptime_days = uptime.days
         uptime_hours = uptime.seconds // 3600
         uptime_minutes = (uptime.seconds // 60) % 60
-        
-    
-        if uptime_days == 0:
-            days_text = ""
-        elif uptime_days == 1:
-            days_text = f"{uptime.days} day,"
-        else:
-            days_text = f"{uptime.days} days,"
+        uptime_seconds = uptime.seconds % 60
 
-        if uptime_hours == 0:
-            hours_text = ""
-        elif uptime_hours == 1:
-            hours_text = f"{uptime_hours} hour,"
-        else:
-            hours_text = f"{uptime_hours} hours,"
+        # Adjust for days and hours
+        if uptime_days > 0:
+            uptime_hours += uptime_days * 24
 
-        if uptime_minutes == 0:
-            minutes_text = ""
-        elif uptime_minutes == 1:
-            minutes_text = f"{uptime_minutes} minute, and"
-        else:
-            minutes_text = f"{uptime_minutes} minutes, and"
+        # Create the uptime text
+        uptime_text = ""
+        if uptime_days > 0:
+            uptime_text += f"{uptime_days} day{'s' if uptime_days > 1 else ''}, "
+        if uptime_hours > 0:
+            uptime_text += f"{uptime_hours} hour{'s' if uptime_hours > 1 else ''}, "
+        if uptime_minutes > 0:
+            uptime_text += f"{uptime_minutes} minute{'s' if uptime_minutes > 1 else ''}, "
+        uptime_text += f"{uptime_seconds} second{'s' if uptime_seconds > 1 else ''}"
 
-        seconds_text = f"{uptime.seconds % 60} seconds"
+        embed_uptime = discord.Embed(title="<:SBT:1134737401089114203> Total Running Time", description=f"<:SBB:1134737393921036348> {uptime_text}", color=0xb50000)
 
-        uptime_text = f"{days_text} {hours_text} {minutes_text} {seconds_text}"
-
-        embedUptime = discord.Embed(title="<:SBT:1134737401089114203> Total Running Time", description=f"<:SBB:1134737393921036348> {uptime_text}", color=0xb50000)
-        
-        await ctx.send(embed=embedUptime)
-        
+        await ctx.send(embed=embed_uptime)
 
 async def setup(bot):
     await bot.add_cog(Information(bot))
