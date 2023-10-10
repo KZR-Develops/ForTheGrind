@@ -257,6 +257,7 @@ class CloseConfirmation(discord.ui.View):
         await ticketDashboard(interaction=interaction, claimStatus="Closed", type="None")        
         with open(f'./extras/transcripts/{interaction.channel.id}.md', 'rb') as f:
             await dashboard.send(file=discord.File(f, f"./extras/transcripts/{interaction.channel.id}.md"))
+            os.remove(f'./extras/transcripts/{interaction.channel.id}.md')
         
         await asyncio.sleep(5)
         await interaction.channel.delete()
