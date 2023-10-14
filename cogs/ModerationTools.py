@@ -23,6 +23,7 @@ class ModerationTools(commands.Cog):
     @commands.has_permissions(manage_messages=True)
     async def purge(self, ctx, amount: int, member: discord.Member=None):
         try:
+            await ctx.message.delete()
             if amount > int(self.limit):
                 embedError = discord.Embed(description="The amount exceeds the limit. Do not exceed the limit to keep the bot running smoothly.")
                 
@@ -123,7 +124,6 @@ class ModerationTools(commands.Cog):
                     embedLog.set_footer(text=f"Case ID: {case_number}")
                     await modlogs.send(embed=embedLog)
             
-            await ctx.message.delete()
         except discord.errors.RateLimited:
             errorEmbed = discord.Embed(description="We are being rate limited.", color=0xb50000)
             await ctx.send(embed=errorEmbed)      
@@ -435,21 +435,32 @@ class ModerationTools(commands.Cog):
             await modlogs.send(embed=embedLog)
             
     @commands.command(aliases=["warnings", "checkwarns", "warns"])
-    @commands.has_permissions(kick_members=True)
-    async def checkwarnings(self, ctx, member: discord.Member):
+    async def checkwarnings(self, ctx, member: discord.Member = None):
+        # Load warnings data
         with open('./extras/warnings.json', 'r') as f:
             warnings = json.load(f)
+
+        # Check if member is not mentioned or is the author
+        if member is None or member == ctx.author:
+            author_id = str(ctx.author.id)
+            if author_id not in warnings:
+                embedCount = discord.Embed(description=f"You currently have no warnings.", color=0xb50000)
+            else:
+                count = warnings[author_id]["WarningCount"]
+                embedCount = discord.Embed(description=f"You currently have a total of {count} warning(s).", color=0xb50000)
             
-        if str(member.id) not in warnings:
-            embedCount = discord.Embed(description=f"{member.name} has a total of no warnings.", color=0xb50000)
             await ctx.send(embed=embedCount)
-            return
+        else:
+            member_id = str(member.id)
+            if member_id not in warnings:
+                embedCount = discord.Embed(description=f"{member.name} currently has no warnings.", color=0xb50000)
+            else:
+                count = warnings[member_id]["WarningCount"]
+                embedCount = discord.Embed(description=f"{member.name} has a total of {count} warning(s).", color=0xb50000)
             
-        count = warnings[str(member.id)]["WarningCount"]
-        
-        embedCount = discord.Embed(description=f"{member.name}#{member.discriminator} has a total of {count} of warnings.", color=0xb50000)
-        
-        await ctx.send(embed=embedCount)
+            await ctx.send(embed=embedCount)
+
+
         
     ### Lockdown System ###
     @commands.command()
