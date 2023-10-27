@@ -2,6 +2,7 @@ import json
 import discord
 
 from discord.ext import commands
+from cogs.utils.embeds import *
 
 
 class ErrorHandler(commands.Cog):
@@ -17,11 +18,9 @@ class ErrorHandler(commands.Cog):
         if isinstance(error, commands.CommandNotFound):
             pass
         elif isinstance(error, commands.MissingPermissions):
-            embedError = discord.Embed(description="You are missing the required permission to run this command.", color=0xb50000)
-            await ctx.send(embed=embedError, delete_after=5)
+            MissingPermissions(ctx=ctx)
         elif isinstance(error, commands.MissingRequiredArgument):
-            embedError = discord.Embed(description="You are missing a required argument to run this command.", color=0xb50000)
-            await ctx.send(embed=embedError, delete_after=5)
+            MissingArguments(ctx=ctx)
         else:
             print(f"[COMMAND ERROR] {error}")
             embedError = discord.Embed(description="Oops! Something went wrong.", color=0xb50000)

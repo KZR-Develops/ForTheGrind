@@ -1,5 +1,5 @@
 {
-    "total_count": 65,
+    "total_count": 79,
     "cases": [
         {
             "ID": 1,
@@ -452,6 +452,107 @@
             "User": "kzrdesigns",
             "Activity": "Clear Warnings",
             "Time": "2023-10-10 19:42:39"
+        },
+        {
+            "ID": 66,
+            "Responsible Staff": "kaiii4222",
+            "Activity": "Purge",
+            "Channel": "\ud83d\udcac\u2503chatroom",
+            "Time": "2023-10-13 22:07:06"
+        },
+        {
+            "ID": 67,
+            "Responsible Staff": "kaiii4222",
+            "Activity": "Purge",
+            "Channel": "\ud83d\udcac\u2503chatroom",
+            "Time": "2023-10-13 22:07:06"
+        },
+        {
+            "ID": 68,
+            "Responsible Staff": "kaiii4222",
+            "Activity": "Purge",
+            "Channel": "testing-grounds",
+            "Time": "2023-10-13 22:28:26"
+        },
+        {
+            "ID": 69,
+            "Responsible Staff": "kaiii4222",
+            "Activity": "Purge",
+            "Channel": "\ud83d\udcf0\u2503news",
+            "Time": "2023-10-13 22:28:26"
+        },
+        {
+            "ID": 70,
+            "Responsible Staff": "kaiii4222",
+            "Activity": "Purge",
+            "Channel": "testing-grounds",
+            "Time": "2023-10-14 16:01:51"
+        },
+        {
+            "ID": 71,
+            "Responsible Staff": "kaiii4222",
+            "Activity": "Purge",
+            "Channel": "\ud83d\udcac\u2503chatroom",
+            "Time": "2023-10-14 16:10:38"
+        },
+        {
+            "ID": 72,
+            "Responsible Staff": "kaiii4222",
+            "User": "kzrdesigns",
+            "Activity": "Kicked",
+            "Reason": "testing",
+            "Time": "2023-10-14 16:10:38"
+        },
+        {
+            "ID": 73,
+            "Responsible Staff": "kaiii4222",
+            "User": "kzrdesigns",
+            "Activity": "Kicked",
+            "Reason": "testing",
+            "Time": "2023-10-14 16:46:01"
+        },
+        {
+            "ID": 74,
+            "Responsible Staff": "kaiii4222",
+            "User": "kzrdesigns",
+            "Activity": "Kicked",
+            "Reason": "test",
+            "Time": "2023-10-14 16:55:37"
+        },
+        {
+            "ID": 75,
+            "Responsible Staff": "kaiii4222",
+            "Activity": "Purge",
+            "Channel": "\ud83d\udcac\u2503chatroom",
+            "Time": "2023-10-15 08:04:51"
+        },
+        {
+            "ID": 76,
+            "Responsible Staff": "kaiii4222",
+            "Activity": "Purge",
+            "Channel": "testing-grounds",
+            "Time": "2023-10-26 03:31:53"
+        },
+        {
+            "ID": 77,
+            "Responsible Staff": "kaiii4222",
+            "Activity": "Purge",
+            "Channel": "\ud83d\udcd5\u2503hub",
+            "Time": "2023-10-26 20:51:20"
+        },
+        {
+            "ID": 78,
+            "Responsible Staff": "kaiii4222",
+            "Activity": "Purge",
+            "Channel": "\ud83d\udcd5\u2503hub",
+            "Time": "2023-10-27 22:14:07"
+        },
+        {
+            "ID": 79,
+            "Responsible Staff": "kaiii4222",
+            "Activity": "Purge",
+            "Channel": "\ud83d\udcd5\u2503hub",
+            "Time": "2023-10-27 22:14:07"
         }
     ]
 }

@@ -63,7 +63,7 @@ class Main(commands.AutoShardedBot):
                     print(f'{filename[:-3]} has been loaded with no errors.')
                     print('─' * 70)
                 except Exception as e:
-                    print('Failed to load extension {}\n{}: {}'.format(filename    , type(e).__name__, e))
+                    print('[STARTUP ERROR] Failed to load extension {}\n{}: {}'.format(filename    , type(e).__name__, e))
             
     async def on_ready(self):
         if config['Restarted'] == "True":
@@ -129,6 +129,12 @@ class Main(commands.AutoShardedBot):
         print(prefix + f' ID: {bot.user.id}')
         print('─' * 70)
         
-bot = Main()
-set_boot_time()
-bot.run(dpyToken)
+
+
+if __name__ == "__main__":
+    try:
+        bot = Main()
+        set_boot_time()
+        bot.run(dpyToken)
+    except Exception as error:
+        print(f"An error has occured: {error}")

@@ -16,7 +16,19 @@ with open('config.json', 'r') as f:
 class DeveloperTools(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        
+
+    async def ratShutdown(self):
+        config['Restarted'] == "False"
+        pid = os.getpid()
+
+        with open('./config.json', 'w') as f:
+            json.dump(config, f)
+
+        await self.bot.close()
+        self.bot.clear()
+        os.system(f"taskkill /F /PID {pid}")
+
+
     @commands.group()
     @commands.is_owner()
     async def cog(self, ctx):
@@ -72,6 +84,7 @@ class DeveloperTools(commands.Cog):
     async def reload(self, ctx, extension: str=None):
         await ctx.message.delete()
         if extension != None:
+            print("Attempting to reload active bot extensions...")
             try:
                 await self.bot.reload_extension(f'cogs.{extension}')
                 embedAction = discord.Embed(description=f"{extension} has been reloaded with no errors.", color=0x00ff00)
@@ -122,6 +135,12 @@ class DeveloperTools(commands.Cog):
     async def restart(self, ctx):
         await asyncio.sleep(5)
         await ctx.send("Initiating a restart...")
+        
+        config['Restarted'] = "True"
+
+        with open('./config.json', 'w') as f:
+            json.dump(config, f)
+
         await ctx.message.delete()
         await self.bot.close()
         print("Closed the connection between the bot and the gateway.")

@@ -14,6 +14,7 @@ class Information(commands.Cog):
         self.bot = bot
 
     @commands.group(name="info")
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def info(self, ctx):
         sbt = "<:SBT:1134737401089114203>"
         sbb = "<:SBB:1134737393921036348>"
@@ -137,6 +138,7 @@ class Information(commands.Cog):
     
     
     @commands.command()
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def uptime(self, ctx):
         last_boot = get_boot_time()
         current_time = datetime.now()
@@ -148,9 +150,9 @@ class Information(commands.Cog):
         uptime_minutes = (uptime.seconds // 60) % 60
         uptime_seconds = uptime.seconds % 60
 
-        # Adjust for days and hours
+        # Reset hours when another day has passed
         if uptime_days > 0:
-            uptime_hours += uptime_days * 24
+            uptime_hours = uptime_hours % 24  # Reset the hours count
 
         # Create the uptime text
         uptime_text = ""
@@ -160,11 +162,25 @@ class Information(commands.Cog):
             uptime_text += f"{uptime_hours} hour{'s' if uptime_hours > 1 else ''}, "
         if uptime_minutes > 0:
             uptime_text += f"{uptime_minutes} minute{'s' if uptime_minutes > 1 else ''}, "
-        uptime_text += f"{uptime_seconds} second{'s' if uptime_seconds > 1 else ''}"
+        uptime_text += f"and {uptime_seconds} second{'s' if uptime_seconds > 1 else ''}"
 
         embed_uptime = discord.Embed(title="<:SBT:1134737401089114203> Total Running Time", description=f"<:SBB:1134737393921036348> {uptime_text}", color=0xb50000)
 
         await ctx.send(embed=embed_uptime)
+
+
+    @commands.command()
+    async def help(self, ctx, page: int = None): 
+        helpEmbed = discord.Embed(
+            color=0xb50000
+        )
+
+        helpEmbed.add_field(
+            name="All Available Category of Command List",
+            value="<:Empty:1134737303324065873>\n<:Empty:1134737303324065873><:SBB:1134737393921036348> Page 1: Fun\n<:Empty:1134737303324065873><:SBB:1134737393921036348> Page 2: Utility\n<:Empty:1134737303324065873><:SBB:1134737393921036348> Page 3: Information\n<:Empty:1134737303324065873><:SBB:1134737393921036348> Page 4: Music\n<:Empty:1134737303324065873><:SBB:1134737393921036348> Page 5: Moderator Tools\n<:Empty:1134737303324065873><:SBB:1134737393921036348> Page 6: Developer Tools"
+        )
+
+        
 
 async def setup(bot):
     await bot.add_cog(Information(bot))

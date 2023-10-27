@@ -21,6 +21,7 @@ class ModerationTools(commands.Cog):
     
     @commands.command(aliases=["clear"])
     @commands.has_permissions(manage_messages=True)
+    @commands.cooldown(1, 10, commands.BucketType.member)
     async def purge(self, ctx, amount: int, member: discord.Member=None):
         try:
             await ctx.message.delete()
@@ -169,10 +170,6 @@ class ModerationTools(commands.Cog):
             with open("./extras/warnings.json", "r") as f:
                 warnings = json.load(f)
                 
-            # Sends a message on the channel and kicks the member
-            embedAction = discord.Embed(description=f"{member.name} has been removed from the server for violating our community guidelines.", color=0xf50000)
-            await ctx.send(embed=embedAction, delete_after=5)
-            await member.kick(reason=reason)
             
             # Send a kick notice to the member
             embedNotice = discord.Embed(description=f"Hey there {member.name}!\n\nThis message is sent to make you aware of the action we've made.\nYou have been removed from the server for violating our community guidelines.\n\nWe take the safety and well-being of our community seriously. Please respect our rules and guidelines to ensure a positive and enjoyable experience for all members.\n\nIf you were removed from the server and believe it was unjust, you can file an appeal ticket on our server for reinstatement. Provide a clear explanation and any supporting evidence. We take moderation actions seriously and will not entertain frivolous appeals. Our team will review and make a decision as soon as possible.\n\nHere's the reason why you were kicked:\n<:Empty:1134737303324065873><:SBM:1134737397746257940> {reason}", color=0xb50000, timestamp=datetime.now())
@@ -180,6 +177,12 @@ class ModerationTools(commands.Cog):
             embedNotice.set_footer(text=f"Case ID: {case_number} • Responsible Staff : {ctx.author.name}")
             
             await member.send(embed=embedNotice)
+            
+            # Sends a message on the channel and kicks the member
+            embedAction = discord.Embed(description=f"{member.name} has been removed from the server for violating our community guidelines.", color=0xf50000)
+            await ctx.send(embed=embedAction, delete_after=5)
+            await member.kick(reason=reason)
+            
             
             # Log the moderation activity
             modlogs = self.bot.get_channel(int(modlogsID))
@@ -200,6 +203,7 @@ class ModerationTools(commands.Cog):
         
     @commands.command()
     @commands.has_permissions(ban_members=True)
+    @commands.cooldown(1, 3, commands.BucketType.user)
     async def ban(self, ctx, member: discord.Member, *, reason=None):
         if member == ctx.author:
             embedError = discord.Embed(description="Error! You cannot ban yourself!", color=0xff0000)
@@ -270,6 +274,7 @@ class ModerationTools(commands.Cog):
     ### Warning System ###
     @commands.command()
     @commands.has_permissions(kick_members=True)
+    @commands.cooldown(1, 3, commands.BucketType.user)
     async def warn(self, ctx, member: discord.Member, *, reason=None):
         if member == ctx.author:
             embedError = discord.Embed(description="Error! You cannot warn yourself!", color=0xff0000)
@@ -366,6 +371,7 @@ class ModerationTools(commands.Cog):
     
     @commands.command()
     @commands.has_permissions(manage_guild=True)
+    @commands.cooldown(1, 3, commands.BucketType.user)
     async def clearwarnings(self, ctx, member: discord.Member):
         if member == ctx.author:
             embedError = discord.Embed(description="Error! You cannot clear your warnings!", color=0xff0000)
@@ -435,7 +441,9 @@ class ModerationTools(commands.Cog):
             await modlogs.send(embed=embedLog)
             
     @commands.command(aliases=["warnings", "checkwarns", "warns"])
+    @commands.cooldown(1, 3, commands.BucketType.user)
     async def checkwarnings(self, ctx, member: discord.Member = None):
+        await ctx.message.delete()
         # Load warnings data
         with open('./extras/warnings.json', 'r') as f:
             warnings = json.load(f)
@@ -449,7 +457,7 @@ class ModerationTools(commands.Cog):
                 count = warnings[author_id]["WarningCount"]
                 embedCount = discord.Embed(description=f"You currently have a total of {count} warning(s).", color=0xb50000)
             
-            await ctx.send(embed=embedCount)
+            await ctx.send(embed=embedCount, delete_after=5)
         else:
             member_id = str(member.id)
             if member_id not in warnings:
@@ -458,12 +466,10 @@ class ModerationTools(commands.Cog):
                 count = warnings[member_id]["WarningCount"]
                 embedCount = discord.Embed(description=f"{member.name} has a total of {count} warning(s).", color=0xb50000)
             
-            await ctx.send(embed=embedCount)
-
-
+            await ctx.send(embed=embedCount, delete_after=5)
         
     ### Lockdown System ###
-    @commands.command()
+    @commands.command(aliases=["lockserver"])
     @commands.has_permissions(administrator=True)
     async def lockdown(self, ctx):
         
@@ -593,6 +599,16 @@ class ModerationTools(commands.Cog):
         embedLog.set_footer(text=f"Case ID: {case_number}")
         
         await modlogs.send(embed=embedLog)
+
+    @commands.command()
+    @commands.has_any_role(1134743832345448498, 1145297118735642715, 1145283225875390504, 1145295915159138334)
+    async def announce(self, ctx, channel: discord.TextChannel, *, message):
+        embed = discord.Embed(
+            description=f"{message}",
+            color=0xb50000
+        )
+
+        await channel.send(embed=embed)
 
 async def setup(bot):
     await bot.add_cog(ModerationTools(bot))
