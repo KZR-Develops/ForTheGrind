@@ -149,7 +149,7 @@ class DeveloperTools(commands.Cog):
         config["Restarted"] == "False"
 
         with open("./config.json", "w") as f:
-            json.dump(config, f)
+            json.dump(config, f, indent=4)
 
         await ctx.message.delete()
         await asyncio.sleep(5)
