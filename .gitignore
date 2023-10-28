@@ -162,7 +162,7 @@ cython_debug/
 .vscode/
 
 # Ignore Server File Dumps
-extras\transcripts
+extras\
 img\
 
 # Ignore Bot File Dumps

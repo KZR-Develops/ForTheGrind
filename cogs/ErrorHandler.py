@@ -33,8 +33,15 @@ class ErrorHandler(commands.Cog):
             await ctx.send(embed=embed, delete_after=5)
 
         elif isinstance(error, commands.CommandOnCooldown):
+            # Convert seconds to hours, minutes, and seconds
+            hours, remainder = divmod(error.retry_after, 3600)
+            minutes, seconds = divmod(remainder, 60)
+
+            # Create a readable time string
+            time_str = f"{int(hours)} hours, {int(minutes)} minutes, and {int(seconds)} seconds"
+
             embed = discord.Embed(
-                description=f"This command is on cooldown. Please wait for {error.retry_after:.0f} seconds before trying again.",
+                description=f"This command is on cooldown. Please wait for {time_str} before trying again.",
                 color=0xB50000,
             )
 

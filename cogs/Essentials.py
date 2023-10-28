@@ -1,4 +1,5 @@
 import json
+import re
 import discord
 
 from discord.ext import commands
@@ -17,33 +18,78 @@ def format_time(self, seconds):
     else:
         return f"{seconds} seconds"
 
+try:
+    with open('./extras/afks.json', 'r') as file:
+        afk_users = json.load(file)
+except FileNotFoundError:
+    afk_users = {}
 
 class Essentials(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.afk_statuses = {}
 
     @commands.command()
-    @commands.cooldown(1, 86400)
-    async def nick(self, ctx, member: discord.Member, *, nickname):
-        # Get the remaining cooldown time for the user
-        remaining_cooldown = round(
-            commands.cooldowns.Cooldown(1, 86400, commands.BucketType.user)
-            .get_bucket(ctx.message)
-            .get_retry_after()
-        )
-        await ctx.message.delete()
+    @commands.cooldown(1, 86400, commands.BucketType.user)
+    async def nick(self, ctx, member: discord.Member = None, *, nickname: str):
+        if member is None:
+            member = ctx.author
 
-        if remaining_cooldown == 0:
-            await member.edit(nick=nickname)
+            try:
+                await ctx.message.delete()
+                await member.edit(nick=nickname)
+            except commands.MissingPermissions as error:
+                embedError = discord.Embed(description="Your role is higher than mine.")
+
+                await ctx.send(embedError)
+            except commands.CommandOnCooldown as error:
+                embedError = discord.Embed(
+                    description=f"You can change your nickname again in {format_time(error.retry_after)}."
+                )
+
+                await ctx.send(embedError)
         else:
-            # Create an embed
-            embed = discord.Embed(
-                description=f"You can change your nickname again after {format_time(remaining_cooldown)}.",
-                color=0xB50000,  # You can choose a different color
-            )
+            try:
+                await ctx.message.delete()
+                await member.edit(nick=nickname)
+            except commands.MissingPermissions as error:
+                embedError = discord.Embed(description="Your role is higher than mine.")
 
-            await ctx.send(embed=embed)
+                await ctx.send(embedError)
+
+    @commands.command()
+    @commands.cooldown(1, 86400, commands.BucketType.user)
+    async def afk(self, ctx, *, reason: str = None):
+        try:
+            await ctx.message.delete()
+
+            if reason is None:
+                reason = "No reason was provided"
+
+            afk_users[ctx.author.id] = {
+                "Reason": reason,
+                "oldNickname": ctx.author.display_name,
+            }
+
+            
+            with open('./extras/afks.json', 'w') as file:
+                json.dump(afk_users, file, indent=4)
+
+
+            await ctx.author.edit(nick=f"[AFK] {ctx.author.display_name}")
+        except commands.MissingPermissions as error:
+            embedError = discord.Embed(description="Your role is higher than mine.")
+
+            await ctx.send(embedError)
+
+    @commands.Cog.listener()
+    async def on_message(self, message):
+        if message.author.id in afk_users:
+            old_nickname = afk_users[message.author.id]["oldNickname"]
+            await message.author.edit(nick=old_nickname)
+            del afk_users[message.author.id]
+
+            with open('./extras/afks.json', 'w') as afks:
+                json.dump(afk_users, afks, indent=4)
 
     @commands.group()
     async def role(self, ctx):
