@@ -19,81 +19,28 @@ class ModerationTools(commands.Cog):
         self.bot = bot
         self.limit = config["Limits"]["Purge"]
 
-    @commands.command(aliases=["clear"])
     @commands.has_permissions(manage_messages=True)
+    @commands.group(invoke_without_command=True)
     @commands.cooldown(1, 10, commands.BucketType.member)
-    async def purge(self, ctx, amount: int, member: discord.Member = None):
+    async def purge(self, ctx, amount):
         try:
-            await ctx.message.delete()
-            if amount > int(self.limit):
-                embedError = discord.Embed(
-                    description="The amount exceeds the limit. Do not exceed the limit to keep the bot running smoothly."
-                )
+            amount = int(amount)
+        except ValueError:
+            errorEmbed = discord.Embed(
+                description="Please provide a valid integer for the amount argument.\nTry ``ftg.purge <amount (in numerical form)>``",
+                color=0xB50000,
+            )
+            await ctx.send(embed=errorEmbed, delete_after=5)
+            return
 
-                await ctx.send(embed=embedError)
-            else:
-                if member is not None:
-                    member_messages = []
-                    async for message in ctx.channel.history(limit=None):
-                        if message.author == member:
-                            member_messages.append(message)
-
-                    if member_messages:
-                        # Load the JSON file containing the cases
-                        with open("./extras/cases.json", "r") as f:
-                            cases = json.load(f)
-
-                        # Increment the case number
-                        case_number = cases["total_count"] + 1
-
-                        # Create a new case object
-                        new_case = {
-                            "ID": case_number,
-                            "Responsible Staff": ctx.author.name,
-                            "Activity": "Purge Member Message",
-                            "Channel": ctx.channel.name,
-                            "Member": member.name,
-                            "Time": current_time,
-                        }
-
-                        # Append the new case to the cases list
-                        cases["cases"].append(new_case)
-
-                        # Update the case number in the JSON file
-                        cases["total_count"] = case_number
-
-                        # Save the JSON file
-                        with open("./extras/cases.json", "w") as f:
-                            json.dump(cases, f, indent=4)
-
-                        # Deletes x amount of messages and sends a message on the channel
-                        deletedAmount = await ctx.channel.purge(
-                            limit=amount, check=lambda m: m.author == member
-                        )
-                        embedAction = discord.Embed(
-                            description=f"Deleted {len(deletedAmount)} messages of {member.display_name} in this channel",
-                            color=0xB50000,
-                        )
-                        await ctx.send(embed=embedAction, delete_after=5)
-
-                        # Log the moderation activity
-                        channel = self.bot.get_channel(modlogsID)
-                        embedLog = discord.Embed(
-                            color=0xB50000, timestamp=datetime.now()
-                        )
-                        embedLog.add_field(
-                            name="<:Empty:1134737303324065873>",
-                            value=f"<:Empty:1134737303324065873><:SBM:1134737397746257940> Activity: Deleted {len(deletedAmount)} of {member.name} in  {ctx.channel.mention}\n<:Empty:1134737303324065873><:SBM:1134737397746257940> Staff Responsible: {ctx.author.name}",
-                        )
-                        embedLog.set_author(name="Automatic Logging System")
-                        embedLog.set_footer(text=f"Case ID: {case_number}")
-                        await channel.send(embed=embedLog)
-                    else:
-                        embedAction = discord.Embed(
-                            description=f"{member.display_name} has not sent any messages in this channel",
-                            color=0xB50000,
-                        )
-                        await ctx.send(embed=embedAction, delete_after=5)
+        if ctx.invoked_subcommand is None:
+            try:
+                await ctx.message.delete()
+                if amount > self.limit:
+                    embedError = discord.Embed(
+                        description="The amount exceeds the limit. Do not exceed the limit to keep the bot running smoothly."
+                    )
+                    await ctx.send(embed=embedError)
                 else:
                     # Load the JSON file containing the cases
                     with open("./extras/cases.json", "r") as f:
@@ -108,7 +55,6 @@ class ModerationTools(commands.Cog):
                         "Responsible Staff": ctx.author.name,
                         "Activity": "Purge",
                         "Channel": ctx.channel.name,
-                        "Time": current_time,
                     }
 
                     # Append the new case to the cases list
@@ -121,15 +67,31 @@ class ModerationTools(commands.Cog):
                     with open("./extras/cases.json", "w") as f:
                         json.dump(cases, f, indent=4)
 
-                    # Deletes x amount of messages and sends a message on the channel
                     try:
+                        # Attempt to use bulk deletion
                         deletedAmount = await ctx.channel.purge(limit=amount)
-                    except discord.errors.RateLimited:
-                        errorEmbed = discord.Embed(
-                            description="We are being rate limited.", color=0xB50000
-                        )
-                        await ctx.send(embed=errorEmbed)
-                        await asyncio.sleep(5)
+                    except discord.errors.HTTPException:
+                        # If bulk deletion fails (messages older than 14 days), resort to manual deletion
+                        older_than_14_days = []
+                        async for message in ctx.channel.history(limit=amount):
+                            if (datetime.now() - message.created_at).days > 14:
+                                older_than_14_days.append(message)
+                            if len(older_than_14_days) >= amount:
+                                break
+
+                        # Delete messages older than 14 days manually
+                        for message in older_than_14_days:
+                            try:
+                                await message.delete()
+                            except discord.errors.RateLimited:
+                                errorEmbed = discord.Embed(
+                                    description="We are being rate limited.", color=0xB50000
+                                )
+                                await ctx.send(embed=errorEmbed)
+                                await asyncio.sleep(5)
+
+                        deletedAmount = older_than_14_days
+
                     embedAction = discord.Embed(
                         description=f"Deleted {len(deletedAmount)} messages in this channel",
                         color=0xF50000,
@@ -147,11 +109,152 @@ class ModerationTools(commands.Cog):
                     embedLog.set_footer(text=f"Case ID: {case_number}")
                     await modlogs.send(embed=embedLog)
 
-        except discord.errors.RateLimited:
-            errorEmbed = discord.Embed(
-                description="We are being rate limited.", color=0xB50000
+            except discord.errors.RateLimited:
+                errorEmbed = discord.Embed(
+                    description="We are being rate limited.", color=0xB50000
+                )
+                await ctx.send(embed=errorEmbed)
+            except discord.errors.NotFound:
+                errorEmbed = discord.Embed(
+                    description="Some messages could not be found and were not deleted.",
+                    color=0xB50000,
+                )
+                await ctx.send(embed=errorEmbed)
+        else:
+            pass
+
+        
+    @purge.command()
+    async def member(self, ctx, member: discord.Member, amount: int):
+        await ctx.message.delete()
+
+        member_messages = []
+        async for message in ctx.channel.history(limit=None):
+            if message.author == member:
+                member_messages.append(message)
+
+        if member_messages:
+            # Load the JSON file containing the cases
+            with open("./extras/cases.json", "r") as f:
+                cases = json.load(f)
+
+            # Increment the case number
+            case_number = cases["total_count"] + 1
+
+            # Create a new case object
+            new_case = {
+                "ID": case_number,
+                "Responsible Staff": ctx.author.name,
+                "Activity": "Purge Member Message",
+                "Channel": ctx.channel.name,
+                "Member": member.name,
+                "Time": current_time,
+            }
+
+            # Append the new case to the cases list
+            cases["cases"].append(new_case)
+
+            # Update the case number in the JSON file
+            cases["total_count"] = case_number
+
+            # Save the JSON file
+            with open("./extras/cases.json", "w") as f:
+                json.dump(cases, f, indent=4)
+
+            try:
+                # Collect the messages that need to be deleted
+                deletedAmount = [message for message in member_messages[:amount]]
+                await ctx.channel.delete_messages(deletedAmount)
+
+                embedAction = discord.Embed(
+                    description=f"Deleted {len(deletedAmount)} messages of {member.display_name} in this channel",
+                    color=0xb50000,
+                )
+                await ctx.send(embed=embedAction, delete_after=5)
+            except discord.errors.HTTPException as e:
+                if "can only bulk delete messages that are under 14 days old" in str(e):
+                    # Handle the error when messages are over 14 days old
+                    errorEmbed = discord.Embed(
+                        description="You can only bulk delete messages that are under 14 days old.",
+                        color=0xb50000,
+                    )
+                    await ctx.send(embed=errorEmbed, delete_after=5)
+
+            # Log the moderation activity
+            channel = self.bot.get_channel(modlogsID)
+            embedLog = discord.Embed(color=0xB50000, timestamp=datetime.now())
+            embedLog.add_field(
+                name="<:Empty:1134737303324065873>",
+                value=f"<:Empty:1134737303324065873><:SBM:1134737397746257940> Activity: Deleted {len(deletedAmount)} of {member.name} in {ctx.channel.mention}\n<:Empty:1134737303324065873><:SBM:1134737397746257940> Staff Responsible: {ctx.author.name}",
             )
-            await ctx.send(embed=errorEmbed)
+            embedLog.set_author(name="Automatic Logging System")
+            embedLog.set_footer(text=f"Case ID: {case_number}")
+            await channel.send(embed=embedLog)
+        else:
+            embedAction = discord.Embed(
+                description=f"{member.display_name} has not sent any messages in this channel",
+                color=0xB50000,
+            )
+            await ctx.send(embed=embedAction, delete_after=5)
+
+
+    @purge.command()
+    async def bot(self, ctx, amount: int):
+        def is_bot_message(message):
+            return message.author == self.bot.user
+
+        # Load the JSON file containing the cases
+        with open("./extras/cases.json", "r") as f:
+            cases = json.load(f)
+
+            # Increment the case number
+            case_number = cases["total_count"] + 1
+
+            # Create a new case object
+            new_case = {
+                "ID": case_number,
+                "Responsible Staff": ctx.author.name,
+                "Activity": "Purge Bot Message",
+                "Channel": ctx.channel.name,
+                "Time": current_time,  # Ensure current_time is defined
+            }
+
+            # Append the new case to the cases list
+            cases["cases"].append(new_case)
+
+            # Update the case number in the JSON file
+            cases["total_count"] = case_number
+
+            # Save the JSON file
+            with open("./extras/cases.json", "w") as f:
+                json.dump(cases, f, indent=4)
+
+        deletedAmount = []
+        bot_messages = []
+
+        async for message in ctx.channel.history(limit=None):
+            if is_bot_message(message):
+                bot_messages.append(message)
+                if len(bot_messages) >= amount:
+                    break
+
+        if bot_messages:
+            try:
+                await ctx.channel.delete_messages(bot_messages)
+                deletedAmount.extend(bot_messages)
+            except discord.errors.RateLimited:
+                errorEmbed = discord.Embed(
+                    description="We are being rate limited. Retrying...",
+                    color=0xB50000,
+                )
+                await ctx.send(embed=errorEmbed)
+                await asyncio.sleep(5)
+
+        embedAction = discord.Embed(
+            description=f"Deleted {len(deletedAmount)} messages of the bot in this channel",
+            color=0xB50000,
+        )
+        await ctx.send(embed=embedAction, delete_after=5)
 
     ### Punishment System ###
     @commands.command()
