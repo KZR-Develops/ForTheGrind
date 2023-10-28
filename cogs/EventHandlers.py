@@ -7,30 +7,38 @@ from discord.ext import commands
 
 
 class EventsHandler(commands.Cog):
-    def __init__(self, bot:commands.Bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-        self.prefix = (Style.BRIGHT + Back.BLACK + Fore.GREEN + '[' + time.strftime("%H:%M:%S", time.gmtime()) + ']' + Back.RESET + Fore.WHITE + Style.BRIGHT)
+        self.prefix = (
+            Style.BRIGHT
+            + Back.BLACK
+            + Fore.GREEN
+            + "["
+            + time.strftime("%H:%M:%S", time.gmtime())
+            + "]"
+            + Back.RESET
+            + Fore.WHITE
+            + Style.BRIGHT
+        )
 
     @commands.Cog.listener()
     async def on_connect(self):
-
-        print('─' * 70)
-        print(f'{self.prefix} The client has successfully connected to Discord.')
-        print('─' * 70)
+        print("─" * 70)
+        print(f"{self.prefix} The client has successfully connected to Discord.")
+        print("─" * 70)
 
     @commands.Cog.listener()
     async def on_resume(self):
-
-        print('─' * 70)
-        print(f'{self.prefix} The client has resume its session to Discord.')
-        print('─' * 70)
+        print("─" * 70)
+        print(f"{self.prefix} The client has resume its session to Discord.")
+        print("─" * 70)
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
         guild = member.guild
         role_id = 1146684980563558440  # Replace with the actual role ID
-        
+
         role = discord.utils.get(guild.roles, id=role_id)
         await member.add_roles(role)
 
@@ -42,5 +50,6 @@ class EventsHandler(commands.Cog):
             if special_role:
                 await after.add_roles(special_role)
 
-async def setup(bot:commands.Bot):
+
+async def setup(bot: commands.Bot):
     await bot.add_cog(EventsHandler(bot))

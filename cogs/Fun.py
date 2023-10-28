@@ -1,14 +1,32 @@
+import discord
 import json
 import random
-import discord
+import aiohttp
+import requests
+
 from discord.ext import commands
+
+
+def format_time(self, seconds):
+    # Extract hours, minutes, and seconds
+    hours, remainder = divmod(seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+
+    # Build a readable time format
+    if hours:
+        return f"{hours} hours, {minutes} minutes, and {seconds} seconds"
+    elif minutes:
+        return f"{minutes} minutes and {seconds} seconds"
+    else:
+        return f"{seconds} seconds"
+
 
 class Fun(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
         try:
-            with open('./extras/afks.json', 'r') as f:
+            with open("./extras/afks.json", "r") as f:
                 self.afk_data = json.load(f)
         except FileNotFoundError:
             self.afk_data = {}
@@ -18,8 +36,7 @@ class Fun(commands.Cog):
         dice = random.randint(1, 6)
 
         embed = discord.Embed(
-            description=f"You rolled a dice, and got {dice}.",
-            color=0xb50000
+            description=f"You rolled a dice, and got {dice}.", color=0xB50000
         )
 
         await ctx.send(embed=embed)
@@ -35,60 +52,61 @@ class Fun(commands.Cog):
             elif coin == 2:
                 face = "Tails"
                 return face
-        
+
         embed = discord.Embed(
             description=f"You flipped a coin, and got {flip(coin=coin)}.",
-            color=0xb50000
+            color=0xB50000,
         )
 
         await ctx.send(embed=embed)
 
-    @commands.command(aliases=['8ball', 'magicball'])
+    @commands.command(aliases=["8ball", "magicball"])
     async def eightball(self, ctx, *, question):
-        responses = ["Yes, definitely.",
-                     "No, never.",
-                     "It's possible.",
-                     "Not in a million years.",
-                     "Yes, but don't count on it.",
-                     "I would not bet on it.",
-                     "Outlook not so good.",
-                     "Absolutely!",
-                     "I don't think so.",
-                     "Ask again later."]
+        responses = [
+            "Yes, definitely.",
+            "No, never.",
+            "It's possible.",
+            "Not in a million years.",
+            "Yes, but don't count on it.",
+            "I would not bet on it.",
+            "Outlook not so good.",
+            "Absolutely!",
+            "I don't think so.",
+            "Ask again later.",
+        ]
 
         # Choose a random response
         response = random.choice(responses)
 
-        embed = discord.Embed(
-            description=f"{response}",
-            color=0xb50000
-        )
+        embed = discord.Embed(description=f"{response}", color=0xB50000)
 
         await ctx.send(embed=embed)
 
     @commands.command()
     async def rps(self, ctx, choice):
-        choices = ['rock', 'paper', 'scissors']
-        
+        choices = ["rock", "paper", "scissors"]
+
         # Check if the user's choice is valid
         choice = choice.lower()
         if choice not in choices:
             await ctx.send("Invalid choice! Choose either rock, paper, or scissors.")
             return
-        
+
         # Bot's choice
         bot_choice = random.choice(choices)
-        
+
         # Determine the winner
         if choice == bot_choice:
             result = "It's a tie!"
-        elif (choice == 'rock' and bot_choice == 'scissors') or \
-             (choice == 'paper' and bot_choice == 'rock') or \
-             (choice == 'scissors' and bot_choice == 'paper'):
+        elif (
+            (choice == "rock" and bot_choice == "scissors")
+            or (choice == "paper" and bot_choice == "rock")
+            or (choice == "scissors" and bot_choice == "paper")
+        ):
             result = "You win!"
         else:
             result = "You lose!"
-        
+
         embed = discord.Embed(title="Rock, Paper, Scissors", color=discord.Color.blue())
         embed.add_field(name="Your choice", value=choice, inline=False)
         embed.add_field(name="Bot's choice", value=bot_choice, inline=False)
@@ -96,26 +114,51 @@ class Fun(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    def save_afk_data(self):
-        # Save AFK data to a JSON file
-        with open('./extras/afks.json', 'w') as f:
-            json.dump(self.afk_data, f)
+    @commands.command()
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def dog(self, ctx):
+        # Your API URL
+        api_url = "https://dog.ceo/api/breeds/image/random"
+
+        response = requests.get(api_url)
+
+        if response.status_code == 200:
+            data = response.json()
+            if data["status"] == "success":
+                image_url = data["message"]
+
+                # Send the image in the Discord channel
+                await ctx.send(image_url)
 
     @commands.command()
-    async def afk(self, ctx, *, reason="No reason provided."):
-        """Set yourself as AFK"""
-        self.afk_data[str(ctx.author.id)] = reason
-        self.save_afk_data()
-        await ctx.send(f"{ctx.author.mention} is now AFK. Reason: {reason}")
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def cat(self, ctx):
+        api_url = "https://api.thecatapi.com/v1/images/search"
 
-    @commands.Cog.listener()
-    async def on_message(self, message):
-        if str(message.author.id) in self.afk_data:
-            # Remove user from AFK if they send a message
-            del self.afk_data[str(message.author.id)]
-            self.save_afk_data()
-            await message.channel.send(f"{message.author.mention} is no longer AFK.")
-    
+        response = requests.get(api_url)
+
+        if response.status_code == 200:
+            data = response.json()
+
+            if data and isinstance(data, list) and "url" in data[0]:
+                image_url = data[0]["url"]
+                await ctx.send(image_url)
+
+    @commands.command()
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def dadjoke(self, ctx):
+        # API URL for dad jokes
+        api_url = "https://icanhazdadjoke.com/"
+
+        # Set headers to specify we want a plain text response
+        headers = {"Accept": "text/plain"}
+
+        response = requests.get(api_url, headers=headers)
+
+        if response.status_code == 200:
+            joke = response.text
+            await ctx.send(joke)
+
 
 async def setup(bot):
     await bot.add_cog(Fun(bot))

@@ -1,5 +1,5 @@
 {
-    "total_count": 79,
+    "total_count": 80,
     "cases": [
         {
             "ID": 1,
@@ -553,6 +553,13 @@
             "Activity": "Purge",
             "Channel": "\ud83d\udcd5\u2503hub",
             "Time": "2023-10-27 22:14:07"
+        },
+        {
+            "ID": 80,
+            "Responsible Staff": "kaiii4222",
+            "Activity": "Purge",
+            "Channel": "testing-grounds",
+            "Time": "2023-10-28 15:24:57"
         }
     ]
 }

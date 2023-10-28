@@ -163,3 +163,7 @@ cython_debug/
 
 # Ignore Server File Dumps
 extras\transcripts
+img\
+
+# Ignore Bot File Dumps
+cogs\Dev
