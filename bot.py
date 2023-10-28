@@ -73,7 +73,7 @@ class Main(commands.AutoShardedBot):
             config['Restarted'] = "False"
 
             with open('./config.json', 'w') as f:
-                json.dump(config, f)
+                json.dump(config, f, indent=4)
 
         pid = os.getpid()
 
