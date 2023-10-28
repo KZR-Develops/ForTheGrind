@@ -5,7 +5,10 @@ import os
 import json
 import time
 import platform
+<<<<<<< HEAD
 import argparse
+=======
+>>>>>>> e200e1035f2a61a8df79874c40551ca6c26cbd3d
 
 from dotenv import  load_dotenv
 
@@ -46,13 +49,20 @@ dt_fmt = '%Y-%m-%d %H:%M:%S'
 formatter = logging.Formatter('[{asctime}] [{levelname:<8}] {name}: {message}', dt_fmt, style='{')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
+<<<<<<< HEAD
 
 
 class Main(commands.AutoShardedBot):
     def __init__(self) -> None:
         super().__init__(command_prefix=commands.when_mentioned_or(config['prefix']), intents=discord.Intents.all(), case_insensitive=True)
+=======
+        
+class Main(commands.AutoShardedBot):
+    def __init__(self) -> None:
+        super().__init__(command_prefix=config['prefix'], intents=discord.Intents.all(), case_insensitive=True)
+>>>>>>> e200e1035f2a61a8df79874c40551ca6c26cbd3d
         self.added = False
-        self.remove_command("help")
+        # self.remove_command("help")
         
     async def setup_hook(self):
         for filename in os.listdir('./cogs'):
@@ -119,8 +129,11 @@ class Main(commands.AutoShardedBot):
         
         print('─' * 70)
         print(prefix + ' It took {:.2f}s to launch the program'.format(bootTime))
+<<<<<<< HEAD
         pid = os.getpid()
         print(prefix + f" On PID: {pid}")
+=======
+>>>>>>> e200e1035f2a61a8df79874c40551ca6c26cbd3d
         print('─' * 70)
         print(prefix + f' Operating on Python {pythonVersion}')
         print(prefix + f' Running: discord v{dpyVersion}')
@@ -131,6 +144,7 @@ class Main(commands.AutoShardedBot):
         
 
 
+<<<<<<< HEAD
 if __name__ == "__main__":
     try:
         bot = Main()
@@ -138,3 +152,11 @@ if __name__ == "__main__":
         bot.run(dpyToken)
     except Exception as error:
         print(f"An error has occured: {error}")
+=======
+try:
+    bot.run(dpyToken)
+except discord.errors.RateLimited(retry_after=60):
+    os._exit(0)
+except discord.errors.HTTPException:
+    os._exit(0)
+>>>>>>> e200e1035f2a61a8df79874c40551ca6c26cbd3d

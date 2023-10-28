@@ -1,5 +1,9 @@
 {
+<<<<<<< HEAD
     "total_count": 81,
+=======
+    "total_count": 4,
+>>>>>>> e200e1035f2a61a8df79874c40551ca6c26cbd3d
     "cases": [
         {
             "ID": 1,
@@ -28,6 +32,7 @@
             "Activity": "Purge",
             "Channel": "testing-grounds",
             "Time": "2023-09-01 20:04:45"
+<<<<<<< HEAD
         },
         {
             "ID": 5,
@@ -567,6 +572,8 @@
             "Activity": "Purge",
             "Channel": "testing-grounds",
             "Time": "2023-10-28 17:05:23"
+=======
+>>>>>>> e200e1035f2a61a8df79874c40551ca6c26cbd3d
         }
     ]
 }

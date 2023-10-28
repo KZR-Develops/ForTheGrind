@@ -15,6 +15,7 @@ from discord.utils import MISSING
 with open("./config.json", "r") as f:
     config = json.load(f)
 
+<<<<<<< HEAD
 
 async def ticketDashboard(type, claimStatus, interaction: discord.Interaction):
     b6 = "<:B6:1134737298030874634>"
@@ -113,12 +114,74 @@ class ticketSetup(discord.ui.View):
         style=discord.ButtonStyle.red,
         custom_id="create:blurple",
     )
+=======
+async def generate(self, interaction: discord.Interaction, type):
+    
+        author = interaction.user
+        guild = interaction.guild
+        category = discord.utils.get(guild.categories, id=self.ticket_category_id)
+        dashboard = discord.utils.get(guild.channels, id=self.ticket_dashboard_id)
+        self.total_ticket = category.channels
+        self.ticket_count = len(self.total_ticket) - 2
+        self.ticket_name = self.ticket_count + 1
+        channel_name = f'ticket-{self.ticket_name}'
+        overwrites = {
+            guild.default_role: discord.PermissionOverwrite(view_channel = False),
+            interaction.user: discord.PermissionOverwrite(view_channel = True, send_messages = True, attach_files = True, embed_links = True)
+        }
+        channel = await guild.create_text_channel(channel_name, category=category, overwrites=overwrites)
+
+        if type == "question":
+            embedAssistance = discord.Embed(title=f"Ticket Manager", description=f"Hey there {author.mention}!\nA <@&{self.ticket_role}> will be here shortly, please wait.", timestamp=datetime.now(), color=0xb50000)
+            embedAssistance.set_footer(text=f"Ticket ID: {self.ticket_name} • Type: Question")
+            await channel.send(embed=embedAssistance)
+            
+            embedDashboard = discord.Embed(description=f"Type of Ticket: Question\nTicket Channel: {channel.mention}", color=0xb50000, timestamp=datetime.now())
+            embedDashboard.set_author(name=f"A ticket was generated for {interaction.user.name}#{interaction.user.discriminator}", icon_url=interaction.user.avatar)
+            embedDashboard.set_footer(text=f"Ticket ID: {self.ticket_name}")
+            
+            await dashboard.send(embed=embedDashboard)
+        if type == "report":
+            embedAssistance = discord.Embed(title=f"Ticket Manager", description=f"Hey there {author.mention}!\nA <@&{self.ticket_role}> will be here shortly, please wait.", timestamp=datetime.now(), color=0xb50000)
+            embedAssistance.set_footer(text=f"Ticket ID: {self.ticket_name} • Type: Report")
+            await channel.send(embed=embedAssistance, view=ReportTypeSelector())
+            
+            embedDashboard = discord.Embed(description=f"Type of Ticket: Report\nTicket Channel: {channel.mention}", color=0xb50000, timestamp=datetime.now())
+            embedDashboard.set_author(name=f"A ticket was generated for {interaction.user.name}#{interaction.user.discriminator}", icon_url=interaction.user.avatar)
+            embedDashboard.set_footer(text=f"Ticket ID: {self.ticket_name}")
+            
+            await dashboard.send(embed=embedDashboard)
+        if type == "appeal":
+            embedAssistance = discord.Embed(title=f"Ticket Manager", description=f"Hey there {author.mention}!\nA <@&{self.ticket_role}> will be here shortly, please wait.", timestamp=datetime.now(), color=0xb50000)
+            embedAssistance.set_footer(text=f"Ticket ID: {self.ticket_name} • Type: Appeal")
+            await channel.send(embed=embedAssistance, view=AppealTypeSelector()) 
+            
+            embedDashboard = discord.Embed(description=f"Type of Ticket: Appeal\nTicket Channel: {channel.mention}", color=0xb50000, timestamp=datetime.now())
+            embedDashboard.set_author(name=f"A ticket was generated for {interaction.user.name}#{interaction.user.discriminator}", icon_url=interaction.user.avatar)
+            embedDashboard.set_footer(text=f"Ticket ID: {self.ticket_name}")
+            
+            await dashboard.send(embed=embedDashboard) 
+
+        
+        embedCreated = discord.Embed(title="Ticket Manager", description=f"{author.mention}, Your ticket has been created in {channel.mention}.", timestamp=datetime.now(), color=0xb50000)    
+        await interaction.response.send_message(embed=embedCreated, ephemeral=True)
+
+class Setup(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=None)
+        self.cooldown = commands.CooldownMapping.from_cooldown(1, 600, commands.BucketType.member)
+    
+    @discord.ui.button(label="Create a Ticket", style=discord.ButtonStyle.red, custom_id="create:blurple")
+>>>>>>> e200e1035f2a61a8df79874c40551ca6c26cbd3d
     async def create(self, interaction: discord.Interaction, button: discord.ui.Button):
         interaction.message.author = interaction.user
         retry = self.cooldown.get_bucket(interaction.message).update_rate_limit()
 
         if retry:
+<<<<<<< HEAD
 
+=======
+>>>>>>> e200e1035f2a61a8df79874c40551ca6c26cbd3d
             def convert_seconds(seconds):
                 if seconds > 60:
                     minutes = seconds // 60
@@ -128,6 +191,7 @@ class ticketSetup(discord.ui.View):
                     return f"{str(minutes).rstrip('.0')} minutes and {rounded_seconds} seconds"
                 else:
                     return f"{rounded_seconds} seconds"
+<<<<<<< HEAD
 
             return await interaction.response.send_message(
                 f"Slow down! You can create a ticket again in {convert_seconds(retry)}",
@@ -150,6 +214,18 @@ class TicketTypeSelector(discord.ui.View):
     ticket_category_id = config["categories"]["ticket"]
     ticket_role = config["roles"]["ticketer"]
     ticket_dashboard_id = config["channels"]["ticket_dashboard"]
+=======
+                
+            return await interaction.response.send_message(f"Slow down! You can create a ticket again in {convert_seconds(retry)}", ephemeral=True)
+        
+        embedTypeSelector = discord.Embed(description="To assist you further, tell us why you are creating a ticket.", color=0xb50000)
+        await interaction.response.send_message(embed=embedTypeSelector, view=TicketTypeSelector(), ephemeral=True)
+
+class TicketTypeSelector(discord.ui.View):
+    ticket_category_id = config['categories']['ticket']
+    ticket_role = config['roles']['ticketer']
+    ticket_dashboard_id = config['channels']['ticket_dashboard']
+>>>>>>> e200e1035f2a61a8df79874c40551ca6c26cbd3d
 
     types = [
         discord.SelectOption(
@@ -185,14 +261,19 @@ class TicketTypeSelector(discord.ui.View):
 
 
 class ReportTypeSelector(discord.ui.View):
+<<<<<<< HEAD
     def __init__(self):
         super().__init__(timeout=None)
 
+=======
+    
+>>>>>>> e200e1035f2a61a8df79874c40551ca6c26cbd3d
     types = [
         discord.SelectOption(label="A member", value="member"),
         discord.SelectOption(label="A staff", value="staff"),
         discord.SelectOption(label="A broken feature", value="feature"),
     ]
+<<<<<<< HEAD
 
     @discord.ui.select(
         placeholder="Select the category that matches your report", options=types
@@ -200,10 +281,17 @@ class ReportTypeSelector(discord.ui.View):
     async def menu_callback(
         self, interaction: discord.Interaction, select: discord.ui.Select
     ):
+=======
+    
+    @discord.ui.select(placeholder="Select the category that matches your report", options=types)
+    async def menu_callback(self, interaction: discord.Interaction, select: discord.ui.Select):
+        select.disabled = True
+>>>>>>> e200e1035f2a61a8df79874c40551ca6c26cbd3d
         divider = "<:Divider:1134737299515654198>" * 12
         bullet = "<:B1:1134737275318706278>"
 
         if select.values[0] == "member":
+<<<<<<< HEAD
             embedFollowUp = discord.Embed(
                 description=f"In order for us to help you resolve an issue with our player, please answer this form:\n{divider}\n{bullet}1. What is the username of the player you're reporting?\n{bullet}2. Describe the behavior or actions of the player you're reporting.\n{bullet}3. Do you have any evidence (screenshots, videos) to support your report?",
                 color=0xB50000,
@@ -220,13 +308,26 @@ class ReportTypeSelector(discord.ui.View):
                 description=f"We appreciate your help in making the server features better.\nIn order for us to assist your, please answer this form:\n{divider}\n{bullet}1. Describe the issue you're experiencing in detail.\n{bullet}2. Can you provide the steps to reproduce the issue?\n{bullet}3. Have you tried any steps to resolve the issue on your own? If yes, what were the results?",
                 color=0xB50000,
             )
+=======
+            embedFollowUp = discord.Embed(description=f"In order for us to help you resolve an issue with our player, please answer this form:\n{divider}\n{bullet}1. What is the username of the player you're reporting?\n{bullet}2. Describe the behavior or actions of the player you're reporting.\n{bullet}3. Do you have any evidence (screenshots, videos) to support your report?", color=0xb50000)
+            await interaction.response.send_message(embed=embedFollowUp)
+        if select.values[0] == "staff":
+            embedFollowUp = discord.Embed(description=f"In order for us to help you resolve an issue with our staff, please answer this form:\n{divider}\n{bullet}1. What is the username of the staff member you're reporting?\n{bullet}2. Explain the situation and why you believe the staff member's actions were inappropriate.\n{bullet}3. Do you have any evidence (logs, screenshots, etc.) to back up your report?", color=0xb50000)
+            await interaction.response.send_message(embed=embedFollowUp)
+        if select.values[0] == "feature":
+            embedFollowUp = discord.Embed(description=f"We appreciate your help in making the server features better.\nIn order for us to assist your, please answer this form:\n{divider}\n{bullet}1. Describe the issue you're experiencing in detail.\n{bullet}2. Can you provide the steps to reproduce the issue?\n{bullet}3. Have you tried any steps to resolve the issue on your own? If yes, what were the results?", color=0xb50000)
+>>>>>>> e200e1035f2a61a8df79874c40551ca6c26cbd3d
             await interaction.response.send_message(embed=embedFollowUp)
 
 
 class AppealTypeSelector(discord.ui.View):
+<<<<<<< HEAD
     def __init__(self):
         super().__init__(timeout=None)
 
+=======
+    
+>>>>>>> e200e1035f2a61a8df79874c40551ca6c26cbd3d
     types = [
         discord.SelectOption(label="I have been kicked", value="kicked"),
         discord.SelectOption(label="I have been banned", value="banned"),
@@ -239,6 +340,7 @@ class AppealTypeSelector(discord.ui.View):
         bullet = "<:B1:1134737275318706278>"
 
         if select.values[0] == "kicked":
+<<<<<<< HEAD
             embedFollowUp = discord.Embed(
                 description=f"We're open to hearing your opinion on the said action.\nIf you think it was unjust, fill up this form:\n{divider}\n{bullet}1. Why were you kicked from the server?\n{bullet}2. Do you think this was an unlawful act by our staff?\n{bullet}3. Is there anything else you'd like to add to support your appeal?\n{bullet}4. Lastly, can you send us the Case ID for your issue and the name of the responsible staff. (Check the footer of the notice that was sent to your DMs)",
                 color=0xB50000,
@@ -249,6 +351,12 @@ class AppealTypeSelector(discord.ui.View):
                 description=f"We're open to hearing your opinion on the said action.\nIf you think it was unjust, fill up this form:\n{divider}\n{bullet}1. Why were you kicked from the server?\n{bullet}2. Do you think this was an unlawful act by our staff?\n{bullet}3. Is there anything else you'd like to add to support your appeal?\n{bullet}4. Lastly, can you send us the Case ID for your issue and the name of the responsible staff. (Check the footer of the notice that was sent to your DMs)",
                 color=0xB50000,
             )
+=======
+            embedFollowUp = discord.Embed(description=f"We're open to hearing your opinion on the said action.\nIf you think it was unjust, fill up this form:\n{divider}\n{bullet}1. Why were you kicked from the server?\n{bullet}2. Do you think this was an unlawful act by our staff?\n{bullet}3. Is there anything else you'd like to add to support your appeal?\n{bullet}4. Lastly, can you send us the Case ID for your issue and the name of the responsible staff. (Check the footer of the notice that was sent to your DMs)", color=0xb50000)
+            await interaction.response.send_message(embed=embedFollowUp)
+        if select.values[0] == "banned":
+            embedFollowUp = discord.Embed(description=f"We're open to hearing your opinion on the said action.\nIf you think it was unjust, fill up this form:\n{divider}\n{bullet}1. Why were you kicked from the server?\n{bullet}2. Do you think this was an unlawful act by our staff?\n{bullet}3. Is there anything else you'd like to add to support your appeal?\n{bullet}4. Lastly, can you send us the Case ID for your issue and the name of the responsible staff. (Check the footer of the notice that was sent to your DMs)", color=0xb50000)
+>>>>>>> e200e1035f2a61a8df79874c40551ca6c26cbd3d
             await interaction.response.send_message(embed=embedFollowUp)
 
 
@@ -407,6 +515,7 @@ class CloseConfirmation(discord.ui.View):
 
         await asyncio.sleep(5)
         await interaction.channel.delete()
+<<<<<<< HEAD
         guild = interaction.guild
 
         embedFeedback = discord.Embed(
@@ -594,3 +703,5 @@ class feedbackRating(discord.ui.View):
         )
 
         await interaction.response.send_message(embed=embedSuccess)
+=======
+>>>>>>> e200e1035f2a61a8df79874c40551ca6c26cbd3d

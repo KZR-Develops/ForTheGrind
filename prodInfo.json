@@ -1,5 +1,9 @@
 {
     "Name": "For The Grind",
     "Phase": "Development",
+<<<<<<< HEAD
     "Version": "1.8"
+=======
+    "Version": "1.1.0"
+>>>>>>> e200e1035f2a61a8df79874c40551ca6c26cbd3d
 }

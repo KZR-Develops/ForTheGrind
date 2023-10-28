@@ -17,9 +17,51 @@ class Information(commands.Cog):
     @commands.group(name="info")
     @commands.cooldown(1, 3, commands.BucketType.user)
     async def info(self, ctx):
+        sbt = "<:SBT:1134737401089114203>"
+        sbb = "<:SBB:1134737393921036348>"
+
         if ctx.invoked_subcommand is None:
             pass
 
+<<<<<<< HEAD
+=======
+            createdTime = self.bot.user.created_at.strftime("%B %d, %Y @ %I:%M %p")
+            
+            embedInfo = discord.Embed(title="Official Bot's Information", color=0xb50000, description="<:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198><:Divider:1134737299515654198>")
+            embedInfo.add_field(name=f"{sbt}Software Version", value=f'{sbb}{phase} {version}', inline=True)
+            embedInfo.add_field(name=f"{sbt}Library Version", value=f"{sbb}Discord.py {dpyVersion}", inline=True)
+
+            if uptime_days == 0:
+                days_text = ""
+            elif uptime_days == 1:
+                days_text = f"{uptime.days} day,"
+            else:
+                days_text = f"{uptime.days} days,"
+
+            if uptime_hours == 0:
+                hours_text = ""
+            elif uptime_hours == 1:
+                hours_text = f"{uptime_hours} hour,"
+            else:
+                hours_text = f"{uptime_hours} hours,"
+
+            if uptime_minutes == 0:
+                minutes_text = ""
+            elif uptime_minutes == 1:
+                minutes_text = f"{uptime_minutes} minute, and"
+            else:
+                minutes_text = f"{uptime_minutes} minutes, and"
+
+            seconds_text = f"{uptime.seconds % 60} seconds"
+
+            uptime_text = f"{days_text} {hours_text} {minutes_text} {seconds_text}"
+
+            embedInfo.add_field(name=f"{sbt}Total Running Time", value=f"{sbb}{uptime_text}", inline=False)
+            embedInfo.add_field(name=f"{sbt}Last System Startup Date", value=f'{sbb}{formattedLastBoot}', inline=False)
+            
+            await ctx.send(embed=embedInfo)
+    
+>>>>>>> e200e1035f2a61a8df79874c40551ca6c26cbd3d
     @info.command()
     async def server(self, ctx):
         guild = ctx.guild

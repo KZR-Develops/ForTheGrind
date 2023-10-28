@@ -10,6 +10,9 @@ with open("./config.json", "r") as f:
     config = json.load(f)
 
 
+with open('./config.json', "r") as f:
+    config = json.load(f)
+
 class TicketingSetup(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -21,11 +24,16 @@ class TicketingSetup(commands.Cog):
             if ctx.invoked_subcommand is None:
                 pass
         except commands.errors.MissingPermissions:
+<<<<<<< HEAD
             embedError = discord.Embed(
                 description="You don't have enough permissions to run this command!",
                 color=0xB50000,
             )
 
+=======
+            embedError = discord.Embed(description="You don't have enough permissions to run this command!", color=0xb50000)
+            
+>>>>>>> e200e1035f2a61a8df79874c40551ca6c26cbd3d
             await ctx.message.delete()
             await ctx.send(embed=embedError, delete_after=5)
 
@@ -48,6 +56,7 @@ class TicketingSetup(commands.Cog):
         await ctx.message.delete()
 
     @ticket.command()
+<<<<<<< HEAD
     async def setdashboard(self, ctx, channel: discord.TextChannel = None):
         olddashboard = config["channels"]["ticket_dashboard"]
         if channel is None:
@@ -82,5 +91,34 @@ class TicketingSetup(commands.Cog):
                 await ctx.send(embed=embedSuccess)
 
 
+=======
+    async def setdashboard(self, ctx, channel: discord.TextChannel=None):
+        olddashboard = config['channels']['ticket_dashboard']
+        if channel is None:
+            config['channels']['ticket_dashboard'] = ctx.channel.id 
+
+            with open('./config.json', 'w') as file:
+                json.dump(config, file, indent=8)
+
+            embedSuccess = discord.Embed(description=f"``{ctx.channel.mention}`` is now set as the ticket dashboard.", color=0xb50000)    
+            await ctx.send(embed=embedSuccess)
+        else:
+            if channel.id is olddashboard:
+                embedError = discord.Embed(description=f"Error! {channel.mention} is already set as the ticket dashboard", color=0xb50000)
+                await ctx.send(embed=embedError)
+
+            else:
+                config['channels']['ticket_dashboard'] = channel.id 
+
+                with open('./config.json', 'w') as file:
+                    json.dump(config, file, indent=8)
+
+                embedSuccess = discord.Embed(description=f"``{channel.mention}`` is now set as the ticket dashboard.", color=0xb50000)    
+                await ctx.send(embed=embedSuccess)
+
+
+    
+        
+>>>>>>> e200e1035f2a61a8df79874c40551ca6c26cbd3d
 async def setup(bot):
     await bot.add_cog(TicketingSetup(bot))
