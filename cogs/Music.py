@@ -61,10 +61,18 @@ class Music(commands.Cog):
             # Track loading failed, attempt to reload it and place it at the front of the queue
             if payload.track in self.queue:
                 self.queue.remove(payload.track)  # Remove the failed track from the queue
-            reloaded_track = await wavelink.YouTubeMusicTrack.build_track(payload.track.uri)
-            if reloaded_track:
-                self.queue.insert(0, reloaded_track)  # Place the reloaded track at the front of the queue
-            await self.play_next()  # Play the next track in the updated queue
+            try:
+                reloaded_track = await wavelink.YouTubeTrack.search(payload.track.title)
+                track = reloaded_track[0]
+                if track:
+                    self.queue.insert(0, track)  # Place the reloaded track at the front of the queue
+                await self.play_next()  # Play the next track in the updated queue
+            except Exception:
+                reloaded_track = await wavelink.SoundCloudTrack.search(payload.track.title)
+                track = reloaded_track[0]
+                if track:
+                    self.queue.insert(0, track)  # Place the reloaded track at the front of the queue
+                await self.play_next()  # Play the next track in the updated queue
         elif payload.reason == 'CLEANUP':
             embedError = discord.Embed(
                     description="Indicates that the cleanup process is occurring.",
