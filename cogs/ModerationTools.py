@@ -85,7 +85,8 @@ class ModerationTools(commands.Cog):
                                 await message.delete()
                             except discord.errors.RateLimited:
                                 errorEmbed = discord.Embed(
-                                    description="We are being rate limited.", color=0xB50000
+                                    description="We are being rate limited.",
+                                    color=0xB50000,
                                 )
                                 await ctx.send(embed=errorEmbed)
                                 await asyncio.sleep(5)
@@ -123,7 +124,6 @@ class ModerationTools(commands.Cog):
         else:
             pass
 
-        
     @purge.command()
     async def member(self, ctx, member: discord.Member, amount: int):
         await ctx.message.delete()
@@ -168,7 +168,7 @@ class ModerationTools(commands.Cog):
 
                 embedAction = discord.Embed(
                     description=f"Deleted {len(deletedAmount)} messages of {member.display_name} in this channel",
-                    color=0xb50000,
+                    color=0xB50000,
                 )
                 await ctx.send(embed=embedAction, delete_after=5)
             except discord.errors.HTTPException as e:
@@ -176,7 +176,7 @@ class ModerationTools(commands.Cog):
                     # Handle the error when messages are over 14 days old
                     errorEmbed = discord.Embed(
                         description="You can only bulk delete messages that are under 14 days old.",
-                        color=0xb50000,
+                        color=0xB50000,
                     )
                     await ctx.send(embed=errorEmbed, delete_after=5)
 
@@ -196,7 +196,6 @@ class ModerationTools(commands.Cog):
                 color=0xB50000,
             )
             await ctx.send(embed=embedAction, delete_after=5)
-
 
     @purge.command()
     async def bot(self, ctx, amount: int):
@@ -346,6 +345,7 @@ class ModerationTools(commands.Cog):
     @commands.has_permissions(ban_members=True)
     @commands.cooldown(1, 3, commands.BucketType.user)
     async def ban(self, ctx, member: discord.Member, *, reason=None):
+        await ctx.message.delete()
         if member == ctx.author:
             embedError = discord.Embed(
                 description="Error! You cannot ban yourself!", color=0xFF0000
@@ -353,7 +353,6 @@ class ModerationTools(commands.Cog):
 
             await ctx.send(embed=embedError, delete_after=3)
         else:
-            await ctx.message.delete()
 
             # Load the JSON file containing the cases
             with open("./extras/cases.json", "r") as f:
@@ -403,7 +402,7 @@ class ModerationTools(commands.Cog):
                 description=f"{member.name} has been banned from the server for violating our community guidelines.",
                 color=0xF50000,
             )
-            await ctx.send(embed=embedAction)
+            await ctx.send(embed=embedAction, delete_after=3)
             await member.ban(reason=reason)
 
             # Log the moderation activity
@@ -427,6 +426,63 @@ class ModerationTools(commands.Cog):
             )
             embedLog.set_footer(text=f"Case ID: {case_number}")
             await modlogs.send(embed=embedLog)
+
+    @commands.command()
+    @commands.has_permissions(ban_members=True)
+    async def unban(self, ctx, userID: int, *, reason: str = "No reason was provided."):
+        await ctx.message.delete()
+        # Attempt to get the banned user using the userID
+        try:
+            banned_user = await ctx.guild.fetch_ban(discord.Object(userID))
+        except discord.NotFound:
+            banned_user = None
+
+        if banned_user is None:
+            await ctx.send("User with that ID is not banned.")
+            return
+
+        # Load the JSON file containing the cases
+        with open("./extras/cases.json", "r") as f:
+            cases = json.load(f)
+
+        # Increment the case number
+        case_number = cases["total_count"] + 1
+
+        # Create a new case object
+        new_case = {
+            "ID": case_number,
+            "Responsible Staff": ctx.author.name,
+            "User": banned_user.user.name,
+            "Activity": "Unbanned",
+            "Reason": reason,
+            "Time": str(datetime.now()),
+        }
+
+        # Append the new case to the cases list
+        cases["cases"].append(new_case)
+
+        # Update the case number in the JSON file
+        cases["total_count"] = case_number
+
+        # Save the JSON file
+        with open("./extras/cases.json", "w") as f:
+            json.dump(cases, f, indent=4)
+
+        # Sends a message on the channel and unbans the member
+        await ctx.guild.unban(banned_user.user)
+
+        # Log the unban activity
+        modlogs = self.bot.get_channel(int(modlogsID))
+        sbm = "<:Empty:1134737303324065873><:SBM:1134737397746257940>"
+        sbb = "<:Empty:1134737303324065873><:SBB:1134737393921036348>"
+        embedLog = discord.Embed(color=0xb50000, timestamp=datetime.now())
+        embedLog.set_author(name=f"Automatic Logging System")
+        embedLog.add_field(
+            name="<:Empty:1134737303324065873>",
+            value=f"{sbm} Activity: User Unbanned\n{sbm} Username: {banned_user.user.name}\n{sbm} User ID: {banned_user.user.id}\n{sbm} Staff Responsible: {ctx.author.mention}\n{sbb} Reason: {reason}",
+        )
+        embedLog.set_footer(text=f"Case ID: {case_number}")
+        await modlogs.send(embed=embedLog)
 
     ### Warning System ###
     @commands.command()
