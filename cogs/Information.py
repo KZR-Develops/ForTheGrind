@@ -21,19 +21,19 @@ class Information(commands.Cog):
             pass
 
     @info.command()
+    @commands.cooldown(1, 10, commands.BucketType.member)
     async def server(self, ctx):
         guild = ctx.guild
-        embedInfo = discord.Embed(
-            description=guild.description, color=0xb50000
-        )
+        embedInfo = discord.Embed(description=guild.description, color=0xB50000)
 
         embedInfo.set_author(name=guild.name, icon_url=guild.icon)
         embedInfo.set_thumbnail(url=guild.icon)
         embedInfo.add_field(name="Server ID", value=guild.id, inline=False)
         embedInfo.add_field(
             name="Members Count",
-            value=f"<:Empty:1134737303324065873><:SBB:1134737393921036348> {len(guild.members) - 1}", 
-            inline=False)
+            value=f"<:Empty:1134737303324065873><:SBB:1134737393921036348> {len(guild.members) - 1}",
+            inline=False,
+        )
         embedInfo.add_field(
             name="Channels Count",
             value=f"<:Empty:1134737303324065873><:SBB:1134737393921036348>Text Channels: {len([channel for channel in guild.channels if isinstance(channel, discord.TextChannel)])}\n<:Empty:1134737303324065873><:SBB:1134737393921036348>Voice Channels: {len([channel for channel in guild.channels if isinstance(channel, discord.VoiceChannel)])}",
@@ -52,8 +52,8 @@ class Information(commands.Cog):
 
         if guild.verification_level == discord.VerificationLevel.none:
             embedInfo.add_field(
-                name="Verification Level", 
-                value="<:Empty:1134737303324065873><:SBB:1134737393921036348>[None] This server is unrestricted."
+                name="Verification Level",
+                value="<:Empty:1134737303324065873><:SBB:1134737393921036348>[None] This server is unrestricted.",
             )
         elif guild.verification_level == discord.VerificationLevel.low:
             embedInfo.add_field(
@@ -79,6 +79,7 @@ class Information(commands.Cog):
         await ctx.send(embed=embedInfo)
 
     @info.command()
+    @commands.cooldown(1, 10, commands.BucketType.member)
     async def member(self, ctx, *, member: discord.Member = None):
         if member is None:
             member = ctx.author
@@ -116,6 +117,7 @@ class Information(commands.Cog):
         await ctx.send(embed=embedInfo)
 
     @commands.command()
+    @commands.cooldown(1, 5, commands.BucketType.member)
     async def ping(self, ctx):
         embedLatency = discord.Embed(
             title=f"<:SBT:1134737401089114203> Latency Checker",
@@ -163,14 +165,17 @@ class Information(commands.Cog):
         await ctx.send(embed=embed_uptime)
 
     @commands.command()
+    @commands.cooldown(1, 3, commands.BucketType.member)
     async def help(self, ctx, page: int = None):
         if page is None:
             helpEmbed = discord.Embed(color=0xB50000)
 
             helpEmbed.add_field(
                 name="All Available Category of Command List",
-                value="<:Empty:1134737303324065873>\n<:Empty:1134737303324065873><:SBB:1134737393921036348> **Page 1**: Fun\n<:Empty:1134737303324065873><:SBB:1134737393921036348> **Page 2**: Utility\n<:Empty:1134737303324065873><:SBB:1134737393921036348> **Page 3**: Information\n<:Empty:1134737303324065873><:SBB:1134737393921036348> **Page 4**: Music\n<:Empty:1134737303324065873><:SBB:1134737393921036348> **Page 5**: Moderator Tools\n<:Empty:1134737303324065873><:SBB:1134737393921036348> **Page 6**: Developer Tools",
+                value="<:Empty:1134737303324065873>\n<:Empty:1134737303324065873><:SBB:1134737393921036348> **Page 1**: Fun\n<:Empty:1134737303324065873><:SBB:1134737393921036348> **Page 2**: Utility\n<:Empty:1134737303324065873><:SBB:1134737393921036348> **Page 3**: Information\n<:Empty:1134737303324065873><:SBB:1134737393921036348> **Page 4**: Moderator Tools\n<:Empty:1134737303324065873><:SBB:1134737393921036348> **Page 5**: Developer Tools"
             )
+            helpEmbed.set_footer(text="Great! Now try doing (ftg.help 1) to access command guides")
+
         else:
             if page == 1:
                 helpEmbed = discord.Embed(color=0xB50000)
@@ -184,15 +189,31 @@ class Information(commands.Cog):
 
                 helpEmbed.add_field(
                     name="Page 2: Utility Commands",
-                    value="<:Empty:1134737303324065873>\n<:B1:1134737275318706278> ftg.afk - Sets your \"away\" status.\n<:B1:1134737275318706278> ftg.nick - Changes your nickname.",
+                    value='<:Empty:1134737303324065873>\n<:B1:1134737275318706278> ftg.afk - Sets your "away" status.\n<:B1:1134737275318706278> ftg.nick - Changes your nickname.',
                 )
             elif page == 3:
                 helpEmbed = discord.Embed(color=0xB50000)
 
                 helpEmbed.add_field(
                     name="Page 3: Information Commands",
-                    value="<:Empty:1134737303324065873>\n<:B1:1134737275318706278> ftg.help <page> - Displays brief information regarding commands usage.\n<:B1:1134737275318706278> ftg.info <subcommand>- Provides general information.\n<:Empty:1134737303324065873><:B1:1134737275318706278> ftg.info bot - Gives details about the bot.\n<:Empty:1134737303324065873><:B1:1134737275318706278> ftg.info server - Gives details about the server.\n<:Empty:1134737303324065873><:B1:1134737275318706278> ftg.info member <member> - Fetches information about a specific member.\n<:B1:1134737275318706278> ftg.ping - Checks the response time of the bot.\n<:B1:1134737275318706278> ftg.uptime - Shows how long the bot has been running since its last restart.",
+                    value="<:Empty:1134737303324065873>\n<:B1:1134737275318706278> ftg.help <page> - Displays brief information regarding commands usage.\n\n<:B1:1134737275318706278> ftg.info <subcommand>- Provides general information.\n<:Empty:1134737303324065873><:B1:1134737275318706278> ftg.info bot - Gives details about the bot.\n<:Empty:1134737303324065873><:B1:1134737275318706278> ftg.info server - Gives details about the server.\n<:Empty:1134737303324065873><:B1:1134737275318706278> ftg.info member <member> - Fetches information about a specific member.\n\n<:B1:1134737275318706278> ftg.ping - Checks the response time of the bot.\n<:B1:1134737275318706278> ftg.uptime - Shows how long the bot has been running since its last restart.",
                 )
+            elif page == 4:
+                helpEmbed = discord.Embed(color=0xB50000)
+
+                helpEmbed.add_field(
+                    name="Page 4: Moderator Commands",
+                    value="<:Empty:1134737303324065873>\n<:B1:1134737275318706278> ftg.purge <amount> - Delete multiple messages.\n<:B1:1134737275318706278> ftg.purge bot <amount>- Remove bot messages.\n<:B1:1134737275318706278> ftg.purge member <member> <amount> - Delete messages of a member.\n\n<:B1:1134737275318706278> ftg.kick <member> - Remove a member.\n<:B1:1134737275318706278> ftg.ban <member> - Block a member from rejoining.\n<:B1:1134737275318706278> ftg.unban <user id> <reason (optional)>- Allow a banned member back.\n\n<:B1:1134737275318706278> ftg.warn <member> <reason> - Issue a warning to a member.\n<:B1:1134737275318706278> ftg.clearwarnings <member> - Remove all warnings of a member.\n<:B1:1134737275318706278> ftg.checkwarnings <member> - Check member warnings.\n\n<:B1:1134737275318706278> ftg.lockdown - Temporarily restrict chat actions.\n<:B1:1134737275318706278> ftg.unlockdown - Lift chat restrictions.\n\n<:B1:1134737275318706278> ftg.announce <#channel> <message> - Share important messages in a channel",
+                )
+            elif page == 5:
+                helpEmbed = discord.Embed(color=0xB50000)
+
+                helpEmbed.add_field(
+                    name="Page 5: Developer Commands",
+                    value="<:B1:1134737275318706278> ftg.plugin - Shows a list of plugins.\n<:B1:1134737275318706278> ftg.plugin load <name> - Loads a plugin.\n<:B1:1134737275318706278> ftg.plugin unload <name> - Unloads a plugin.\n<:B1:1134737275318706278> ftg.plugin reload <name> - Reloads a plugin.\n\n<:B1:1134737275318706278> ftg.shutdown - Shuts down the bot.\n<:B1:1134737275318706278> ftg.restart - Restarts the bot.",
+                )
+            elif page > 5:
+                pass
 
         await ctx.send(embed=helpEmbed)
 

@@ -258,7 +258,7 @@ class ModerationTools(commands.Cog):
     ### Punishment System ###
     @commands.command()
     @commands.has_permissions(kick_members=True)
-    async def kick(self, ctx, member: discord.Member, *, reason=None):
+    async def kick(self, ctx, member: discord.Member, *, reason="No reason was provided"):
         if member == ctx.author:
             embedError = discord.Embed(
                 description="Error! You cannot kick yourself!", color=0xFF0000
@@ -344,7 +344,7 @@ class ModerationTools(commands.Cog):
     @commands.command()
     @commands.has_permissions(ban_members=True)
     @commands.cooldown(1, 3, commands.BucketType.user)
-    async def ban(self, ctx, member: discord.Member, *, reason=None):
+    async def ban(self, ctx, member: discord.Member, *, reason="No reason was provided"):
         await ctx.message.delete()
         if member == ctx.author:
             embedError = discord.Embed(
@@ -488,7 +488,7 @@ class ModerationTools(commands.Cog):
     @commands.command()
     @commands.has_permissions(kick_members=True)
     @commands.cooldown(1, 3, commands.BucketType.user)
-    async def warn(self, ctx, member: discord.Member, *, reason=None):
+    async def warn(self, ctx, member: discord.Member, *, reason="No reason was provided"):
         if member == ctx.author:
             embedError = discord.Embed(
                 description="Error! You cannot warn yourself!", color=0xFF0000
