@@ -1,5 +1,5 @@
 {
-    "total_count": 3,
+    "total_count": 5,
     "cases": [
         {
             "ID": 1,
@@ -15,6 +15,18 @@
         },
         {
             "ID": 3,
+            "Responsible Staff": "kaiii4222",
+            "Activity": "Purge",
+            "Channel": "testing-grounds"
+        },
+        {
+            "ID": 4,
+            "Responsible Staff": "kaiii4222",
+            "Activity": "Purge",
+            "Channel": "testing-grounds"
+        },
+        {
+            "ID": 5,
             "Responsible Staff": "kaiii4222",
             "Activity": "Purge",
             "Channel": "testing-grounds"

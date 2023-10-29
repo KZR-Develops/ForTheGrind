@@ -18,7 +18,7 @@ class DeveloperTools(commands.Cog):
         self.bot = bot
     
     @commands.has_role(1145345878777925763)
-    @commands.group(invoke_without_command=True)
+    @commands.group(invoke_without_command=True, aliases=['cog'])
     async def plugin(self, ctx):
         if ctx.invoked_subcommand is None:
             prefix = "<:Empty:1134737303324065873><:SBM:1134737397746257940> "

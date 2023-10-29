@@ -32,19 +32,32 @@ with open('prodInfo.json', 'r') as f:
     prodInfo = json.load(f)
     
     
-# Discord Logging Setup before Discord Connection
+# Define log file path and log file retention period
+log_file = 'discord.log'
+log_retention_period = 7  # 7 days
+
+# Create a custom date format
+dt_fmt = '%m/%d/%y @ %I:%M %p'
+
+# Create a logger with INFO level
 logger = logging.getLogger('discord')
 logger.setLevel(logging.INFO)
 
-handler = logging.handlers.RotatingFileHandler(
-    filename='discord.log',
-    encoding='utf-8',
-    maxBytes=32 * 1024 * 1024,  # 32 MiB
-    backupCount=5,  # Rotate through 5 files
+# Create a RotatingFileHandler for logging
+handler = logging.handlers.TimedRotatingFileHandler(
+    log_file,
+    when='D',  # Daily rotation
+    interval=1,  # Rotate every day
+    backupCount=log_retention_period  # Keep logs for 7 days
 )
-dt_fmt = '%Y-%m-%d %H:%M:%S'
-formatter = logging.Formatter('[{asctime}] [{levelname:<8}] {name}: {message}', dt_fmt, style='{')
+
+# Create a custom formatter
+formatter = logging.Formatter('[{asctime}] [{levelname}]: {message}', dt_fmt, style='{')
+
+# Set the formatter for the handler
 handler.setFormatter(formatter)
+
+# Add the handler to the logger
 logger.addHandler(handler)
 
 
@@ -55,21 +68,40 @@ class Main(commands.AutoShardedBot):
         self.remove_command("help")
 
     async def on_wavelink_node_ready(self, node: wavelink.Node):
-        print(f"Node {node.id} is ready!")
-        
+        print('─' * 70)
+        print(f"Node URI: {node.uri}")
+        print(f"Node ID: {node.id}")
+        print(f"Node Ping: {node.heartbeat}ms")
+        print(f"Node Status: {node.status.name}")
+        print('─' * 70)
+
     async def setup_hook(self):
         # Wavelink 2.0 has made connecting Nodes easier... Simply create each Node
         # and pass it to NodePool.connect with the client/bot.
-        node: wavelink.Node = wavelink.Node(uri='lava1.horizxon.tech:443', password='horizxon.tech', secure=True)
-        await wavelink.NodePool.connect(client=bot, nodes=[node])
-        print("Wavelink initiated...")
+        print('─' * 70)
+        print("[WAVELINK] Initiating connection to lavalink nodes...")
+        print('─' * 70)
+        try:
+            node1: wavelink.Node = wavelink.Node(uri='lava1.horizxon.tech:443', password='horizxon.tech', secure=True)
+            node2: wavelink.Node = wavelink.Node(uri='lava2.horizxon.tech:443', password='horizxon.tech', secure=True)
+            node3: wavelink.Node = wavelink.Node(uri='lava3.horizxon.tech:443', password='horizxon.tech', secure=True)
+            await wavelink.NodePool.connect(client=bot, nodes=[node1, node2, node3])
+            print('─' * 70)
+            print("[WAVELINK] Successfuly connected to lavalink nodes!")
+            print('─' * 70)
+        except ConnectionError:
+            print('─' * 70)
+            print("[WAVELINK] Error while initiating a connection between the nodes.")
+            print('─' * 70)
 
+        await asyncio.sleep(3)
         for filename in os.listdir('./cogs'):
             if filename.endswith('.py'):
+                await asyncio.sleep(2)
                 try:
                     await bot.load_extension(f'cogs.{filename[:-3]}')
                     print('─' * 70)
-                    print(f'{filename[:-3]} has been loaded with no errors.')
+                    print(f'[EXTENSIONS] {filename[:-3]} has been loaded with no errors.')
                     print('─' * 70)
                 except Exception as e:
                     print('[STARTUP ERROR] Failed to load extension {}\n{}: {}'.format(filename    , type(e).__name__, e))
@@ -121,22 +153,33 @@ class Main(commands.AutoShardedBot):
         
         dpyVersion = discord.__version__
         pythonVersion = platform.python_version()
-        prefix = (Style.BRIGHT + Back.BLACK + Fore.GREEN + '[' + time.strftime("%H:%M:%S", time.gmtime()) + ']' + Back.RESET + Fore.WHITE + Style.BRIGHT)
         
         activity = discord.Activity(type=discord.ActivityType.listening, name=f"{config['prefix']}help | FTG")
         await self.change_presence(activity=activity)
 
-        
+        art = r'''
+__/\\\\\\\\\\\\\\\_        __/\\\\\\\\\\\\\\\_        _____/\\\\\\\\\\\\_        
+ _\/\\\///////////__        _\///////\\\/////__        ___/\\\//////////__       
+  _\/\\\_____________        _______\/\\\_______        __/\\\_____________      
+   _\/\\\\\\\\\\\_____        _______\/\\\_______        _\/\\\____/\\\\\\\_     
+    _\/\\\///////______        _______\/\\\_______        _\/\\\___\/////\\\_    
+     _\/\\\_____________        _______\/\\\_______        _\/\\\_______\/\\\_   
+      _\/\\\_____________        _______\/\\\_______        _\/\\\_______\/\\\_  
+       _\/\\\_____________        _______\/\\\_______        _\//\\\\\\\\\\\\/__ 
+        _\///______________        _______\///________        __\////////////____
+'''
         print('─' * 70)
-        print(prefix + ' It took {:.2f}s to launch the program'.format(bootTime))
+        print(art)
+        print('─' * 70)
+        print(' Boot Time: {:.2f}s to launch the program'.format(bootTime))
         pid = os.getpid()
-        print(prefix + f" On PID: {pid}")
+        print(f" Running On PID: {pid}")
         print('─' * 70)
-        print(prefix + f' Operating on Python {pythonVersion}')
-        print(prefix + f' Running: discord v{dpyVersion}')
+        print(f' Operating on Python {pythonVersion}')
+        print(f' Running: discord v{dpyVersion}')
         print('─' * 70)
-        print(prefix + f' Username: {bot.user}')
-        print(prefix + f' ID: {bot.user.id}')
+        print(f' Username: {bot.user}')
+        print(f' UserID: {bot.user.id}')
         print('─' * 70)
         
 
