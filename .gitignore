@@ -167,3 +167,4 @@ img\
 
 # Ignore Bot File Dumps
 cogs\Dev
+extras/
