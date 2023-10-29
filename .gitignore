@@ -168,3 +168,6 @@ img\
 # Ignore Bot File Dumps
 cogs\Dev
 extras/
+extras/bank.json
+extras/cases.json
+extras/warnings.json
