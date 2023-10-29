@@ -82,6 +82,7 @@ class ModerationTools(commands.Cog):
                         # Delete messages older than 14 days manually
                         for message in older_than_14_days:
                             try:
+                                asyncio.sleep(1.5)
                                 await message.delete()
                             except discord.errors.RateLimited:
                                 errorEmbed = discord.Embed(
@@ -89,7 +90,6 @@ class ModerationTools(commands.Cog):
                                     color=0xB50000,
                                 )
                                 await ctx.send(embed=errorEmbed)
-                                await asyncio.sleep(5)
 
                         deletedAmount = older_than_14_days
 
