@@ -5,7 +5,7 @@ import os
 import json
 import time
 import platform
-import argparse
+import wavelink
 
 from dotenv import  load_dotenv
 
@@ -53,8 +53,17 @@ class Main(commands.AutoShardedBot):
         super().__init__(command_prefix=commands.when_mentioned_or(config['prefix']), intents=discord.Intents.all(), case_insensitive=True)
         self.added = False
         self.remove_command("help")
+
+    async def on_wavelink_node_ready(self, node: wavelink.Node):
+        print(f"Node {node.id} is ready!")
         
     async def setup_hook(self):
+        # Wavelink 2.0 has made connecting Nodes easier... Simply create each Node
+        # and pass it to NodePool.connect with the client/bot.
+        node: wavelink.Node = wavelink.Node(uri='lava1.horizxon.tech:443', password='horizxon.tech', secure=True)
+        await wavelink.NodePool.connect(client=bot, nodes=[node])
+        print("Wavelink initiated...")
+
         for filename in os.listdir('./cogs'):
             if filename.endswith('.py'):
                 try:
@@ -64,6 +73,7 @@ class Main(commands.AutoShardedBot):
                     print('─' * 70)
                 except Exception as e:
                     print('[STARTUP ERROR] Failed to load extension {}\n{}: {}'.format(filename    , type(e).__name__, e))
+
             
     async def on_ready(self):
         if config['Restarted'] == "True":
