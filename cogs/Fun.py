@@ -32,6 +32,7 @@ class Fun(commands.Cog):
             self.afk_data = {}
 
     @commands.command(aliases=["roll"])
+    @commands.cooldown(1, 5, commands.BucketType.member)
     async def dice(self, ctx):
         dice = random.randint(1, 6)
 
@@ -42,6 +43,7 @@ class Fun(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command()
+    @commands.cooldown(1, 5, commands.BucketType.member)
     async def coinflip(self, ctx):
         coin = random.randint(1, 2)
 
@@ -61,6 +63,7 @@ class Fun(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command(aliases=["8ball", "magicball"])
+    @commands.cooldown(1, 5, commands.BucketType.member)
     async def eightball(self, ctx, *, question):
         responses = [
             "Yes, definitely.",
@@ -83,6 +86,7 @@ class Fun(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command()
+    @commands.cooldown(1, 5, commands.BucketType.member)
     async def rps(self, ctx, choice):
         choices = ["rock", "paper", "scissors"]
 

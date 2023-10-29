@@ -17,37 +17,35 @@ with open("config.json", "r") as f:
 class DeveloperTools(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
-    @commands.command()
-    async def plugins(self, ctx):
-        prefix = "<:Empty:1134737303324065873><:SBM:1134737397746257940> "
-
-        all_cogs = set(self.bot.cogs.keys())  # All cogs
-        loaded_cogs = set(
-            cog.__class__.__name__ for cog in self.bot.cogs.values()
-        )  # Loaded cogs
-        # unloaded_cogs = all_cogs - loaded_cogs
-
-        loaded_cogs_text = "\n".join(f"{prefix}{cog}" for cog in loaded_cogs)
-        # unloaded_cogs_text = "\n".join(f"{prefix}{cog}" for cog in unloaded_cogs)
-
-        if not loaded_cogs:
-            loaded_cogs_text = f"{prefix}No loaded cogs."
-
-        embedCogs = discord.Embed(title="All Available Plugins", color=0xB50000)
-        embedCogs.add_field(
-            name="<:B6:1134737298030874634> Loaded Plugins", value=loaded_cogs_text
-        )
-        # embedCogs.add_field(name="<:B6:1134737298030874634> Unloaded Plugins", value=unloaded_cogs_text)
-        await ctx.send(embed=embedCogs)
-
-    @commands.group()
-    @commands.is_owner()
-    async def cog(self, ctx):
+    
+    @commands.has_role(1145345878777925763)
+    @commands.group(invoke_without_command=True)
+    async def plugin(self, ctx):
         if ctx.invoked_subcommand is None:
+            prefix = "<:Empty:1134737303324065873><:SBM:1134737397746257940> "
+
+            all_cogs = set(self.bot.cogs.keys())  # All cogs
+            loaded_cogs = set(
+                cog.__class__.__name__ for cog in self.bot.cogs.values()
+            )  # Loaded cogs
+            # unloaded_cogs = all_cogs - loaded_cogs
+
+            loaded_cogs_text = "\n".join(f"{prefix}{cog}" for cog in loaded_cogs)
+            # unloaded_cogs_text = "\n".join(f"{prefix}{cog}" for cog in unloaded_cogs)
+
+            if not loaded_cogs:
+                loaded_cogs_text = f"{prefix}No loaded cogs."
+
+            embedCogs = discord.Embed(title="All Available Plugins", color=0xB50000)
+            embedCogs.add_field(
+                name="<:B6:1134737298030874634> Loaded Plugins", value=loaded_cogs_text
+            )
+            # embedCogs.add_field(name="<:B6:1134737298030874634> Unloaded Plugins", value=unloaded_cogs_text)
+            await ctx.send(embed=embedCogs)
+        else:
             pass
 
-    @cog.command()
+    @plugin.command()
     async def unload(self, ctx, extension):
         await ctx.message.delete()
         try:
@@ -68,7 +66,7 @@ class DeveloperTools(commands.Cog):
             await ctx.message.delete()
             await ctx.send(embed=embedError, delete_after=3)
 
-    @cog.command()
+    @plugin.command()
     async def load(self, ctx, extension):
         await ctx.message.delete()
 
@@ -89,7 +87,7 @@ class DeveloperTools(commands.Cog):
             )
             await ctx.send(embed=embedError, delete_after=5)
 
-    @cog.command()
+    @plugin.command()
     async def reload(self, ctx, extension: str = None):
         await ctx.message.delete()
         if extension != None:
