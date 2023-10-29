@@ -3,11 +3,10 @@ import subprocess
 import time
 import discord
 import os
-import sys
 import json
 
 from discord.ext import commands
-
+from cogs.Music import Music
 
 # Fetch configuration datas
 with open("config.json", "r") as f:
@@ -49,11 +48,18 @@ class DeveloperTools(commands.Cog):
     async def unload(self, ctx, extension):
         await ctx.message.delete()
         try:
+            print('─' * 70)
+            print(f"Attempting to unload {extension}...")
+            print('─' * 70)
             await self.bot.unload_extension(f"cogs.{extension}")
             embedAction = discord.Embed(
                 description=f"{extension} has been unloaded with no errors.",
                 color=0x00FF00,
             )
+
+            print('─' * 70)
+            print(f"{extension} has been unloaded successfuly.")
+            print('─' * 70)
             await ctx.send(embed=embedAction, delete_after=3)
         except Exception as e:
             embedError = discord.Embed(
@@ -71,12 +77,19 @@ class DeveloperTools(commands.Cog):
         await ctx.message.delete()
 
         try:
+            print('─' * 70)
+            print(f"Attempting to load {extension}...")
+            print('─' * 70)
             await self.bot.reload_extension(f"cogs.{extension}")
             embedAction = discord.Embed(
                 description=f"{extension} has been loaded with no errors.",
                 color=0x00FF00,
             )
             await ctx.send(embed=embedAction, delete_after=5)
+
+            print('─' * 70)
+            print(f"{extension} has been loaded successfuly.")
+            print('─' * 70)
         except Exception as e:
             embedError = discord.Embed(
                 description=f"An error occured while loading module named {extension}.\n {e}.",
@@ -92,14 +105,32 @@ class DeveloperTools(commands.Cog):
         await ctx.message.delete()
         if extension != None:
             try:
+                print('─' * 70)
                 print("Attempting to reload active bot extensions...")
+                print('─' * 70)
+                if extension == "Music":
+                    cog = self.bot.get_cog("Music")
+                    if cog:
+                        leave_command = self.bot.get_command("leave")
+                        if leave_command:
+                            try:
+                                await ctx.invoke(leave_command)
+                            except Exception as e:
+                                print(f"[EXTENSION ERROR] An error occurred while reloading module named Music: {e}")
+                        else:
+                            print("The 'leave' command was not found in the Music cog.")
+                    else:
+                        print("The Music cog was not found.")
+
                 await self.bot.reload_extension(f"cogs.{extension}")
                 embedAction = discord.Embed(
                     description=f"{extension} has been reloaded with no errors.",
                     color=0x00FF00,
                 )
                 await ctx.send(embed=embedAction, delete_after=5)
+                print('─' * 70)
                 print(f"{extension} has been reloaded successfuly.")
+                print('─' * 70)
             except Exception as e:
                 embedError = discord.Embed(
                     description=f"An error occured while reloading module named {extension}.\n {e}.",
@@ -160,6 +191,8 @@ class DeveloperTools(commands.Cog):
     @commands.command()
     @commands.is_owner()
     async def restart(self, ctx):
+        os.system("cls")
+        print("Initiating a restart.")
         await asyncio.sleep(5)
         await ctx.send("Initiating a restart...")
 
