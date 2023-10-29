@@ -1,4 +1,17 @@
 {
-  "total_count": 0,
-  "cases": []
+    "total_count": 2,
+    "cases": [
+        {
+            "ID": 1,
+            "Responsible Staff": "kaiii4222",
+            "Activity": "Purge",
+            "Channel": "testing-grounds"
+        },
+        {
+            "ID": 2,
+            "Responsible Staff": "kaiii4222",
+            "Activity": "Purge",
+            "Channel": "testing-grounds"
+        }
+    ]
 }
