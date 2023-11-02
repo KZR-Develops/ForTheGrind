@@ -121,54 +121,6 @@ class Music(commands.Cog):
         except Exception as e:
             pass
 
-    def is_valid_link(input_str):
-        if input_str.startswith("http") or input_str.startswith("www."):
-            return True
-        else:
-            return False
-
-    async def handle_link(self, ctx, link):
-        if ctx.author.voice.channel:
-            if self.music_channel is None:
-                self.music_channel = ctx.channel.id
-            elif self.music_channel is not ctx.channel.id:
-                embedError = discord.Embed(
-                    description=f"This is not the music channel. Go to <#{self.music_channel}>",
-                    color=0xB50000,
-                )
-                await ctx.send(embed=embedError)
-                return
-
-            channel = ctx.author.voice.channel
-            mchannel = self.bot.get_channel(self.music_channel)
-
-            if self.vc is None or not self.vc.is_connected():
-                self.vc = await channel.connect(cls=wavelink.Player)
-                joinEmbed = discord.Embed(
-                    description=f"I have been summoned on {channel.mention}",
-                    color=0xB50000,
-                )
-                await ctx.send(embed=joinEmbed)
-                self.volume = 100
-                await self.set_volume(100)
-
-            # Check if there's a currently playing track
-            if not self.vc.is_playing():
-                # Load and play the link immediately
-                track = await wavelink.YouTubeMusicTrack.build(link)
-                await self.play_next(track)
-            else:
-                # Add the link to the queue
-                track = await wavelink.YouTubeMusicTrack.build(link)
-                self.queue.append(track)
-                embedTrack = discord.Embed(
-                    description=f"Track Title: [{track.title}]({track.uri}) - Singer: {track.author}",
-                    color=0xB50000,
-                )
-                embedTrack.set_author(name="Added To Queue")
-                embedTrack.set_thumbnail(url=track.thumbnail)
-                await ctx.send(embed=embedTrack, delete_after=5)
-
     async def play_next(self, track=None):
         mchannel = self.bot.get_channel(self.music_channel)
         if not track and self.queue:
@@ -319,154 +271,148 @@ class Music(commands.Cog):
         await ctx.message.delete()
 
         query = " ".join(title)
+        # Perform a search for the track
+        tracks = await wavelink.YouTubeMusicTrack.search(query)
 
-        # Check if the input is a valid link (e.g., YouTube link)
-        if self.is_valid_link(query):
-            # Handle link playback or queueing
-            await self.handle_link(ctx, query)
-        else:
-            # Perform a search for the track
-            tracks = await wavelink.YouTubeMusicTrack.search(query)
-
-            if ctx.author.voice.channel:
-                if self.music_channel is None:
-                    self.music_channel = ctx.channel.id
-                elif self.music_channel is not ctx.channel.id:
-                    embedError = discord.Embed(
-                        description=f"This is not the music channel. Go to <#{self.music_channel}>",
-                        color=0xB50000,
-                    )
-                    await ctx.send(embed=embedError)
-                    return
-
-                channel = ctx.author.voice.channel
-                mchannel = self.bot.get_channel(self.music_channel)
-
-                if self.vc is None or not self.vc.is_connected():
-                    self.vc = await channel.connect(cls=wavelink.Player)
-                    joinEmbed = discord.Embed(
-                        description=f"I have been summoned on {channel.mention}",
-                        color=0xB50000,
-                    )
-                    await ctx.send(embed=joinEmbed)
-                    self.volume = 100
-                    await self.set_volume(100)
-
-                # Check if there's a currently playing track
-                if not self.vc.is_playing():
-                    if not tracks:
-                        await mchannel.send(
-                            f"I searched for {query}, but I found nothing."
-                        )
-                    else:
-                        num_results = min(
-                            5, len(tracks)
-                        )  # Get up to 5 search results or all available results
-
-                        # Create a description string to display the search results
-                        description = "Please choose a track to play:\n"
-
-                        for i, track in enumerate(tracks[:num_results]):
-                            description += f"{i + 1}. [{track.title}]({track.uri}) - Singer: {track.author}\n"
-
-                        # Create an embedded message with the description
-                        embedSearchResults = discord.Embed(
-                            title="Search Results",
-                            description=description,
-                            color=0xB50000,
-                        )
-
-                        await ctx.send(embed=embedSearchResults)
-
-                        def check(m):
-                            return m.author == ctx.author and m.channel == ctx.channel
-
-                        try:
-                            response = await ctx.bot.wait_for(
-                                "message", check=check, timeout=30
-                            )
-                            choice = int(response.content)
-
-                            if 1 <= choice <= num_results:
-                                chosen_track = tracks[choice - 1]
-                                self.queue.append(chosen_track)
-
-                                if not self.vc.is_playing():
-                                    await self.play_next(chosen_track)
-                                else:
-                                    embedTrack = discord.Embed(
-                                        description=f"Track Title: [{chosen_track.title}]({chosen_track.uri}) - Singer: {chosen_track.author}",
-                                        color=0xB50000,
-                                    )
-                                    embedTrack.set_author(name="Added To Queue")
-                                    embedTrack.set_thumbnail(url=chosen_track.thumbnail)
-                                    await ctx.send(embed=embedTrack, delete_after=5)
-                            else:
-                                await ctx.send(
-                                    "Invalid choice. Please select a number from the list."
-                                )
-                        except asyncio.TimeoutError:
-                            await ctx.send("You took too long to make a choice")
-                else:
-                    if not tracks:
-                        await mchannel.send(
-                            f"I searched for {query}, but I found nothing."
-                        )
-                    else:
-                        num_results = min(
-                            5, len(tracks)
-                        )  # Get up to 5 search results or all available results
-
-                        # Create a description string to display the search results
-                        description = "Please choose a track to play:\n"
-
-                        for i, track in enumerate(tracks[:num_results]):
-                            description += f"{i + 1}. [{track.title}]({track.uri}) - Singer: {track.author}\n"
-
-                        # Create an embedded message with the description
-                        embedSearchResults = discord.Embed(
-                            title="Search Results",
-                            description=description,
-                            color=0xB50000,
-                        )
-
-                        await ctx.send(embed=embedSearchResults, delete_after=30)
-
-                        def check(m):
-                            return m.author == ctx.author and m.channel == ctx.channel
-
-                        try:
-                            response = await ctx.bot.wait_for(
-                                "message", check=check, timeout=30
-                            )
-                            choice = int(response.content)
-
-                            if 1 <= choice <= num_results:
-                                chosen_track = tracks[choice - 1]
-                                self.queue.append(chosen_track)
-
-                                if not self.vc.is_playing():
-                                    await self.play_next(chosen_track)
-                                else:
-                                    embedTrack = discord.Embed(
-                                        description=f"Track Title: [{chosen_track.title}]({chosen_track.uri}) - Singer: {chosen_track.author}",
-                                        color=0xB50000,
-                                    )
-                                    embedTrack.set_author(name="Added To Queue")
-                                    embedTrack.set_thumbnail(url=chosen_track.thumbnail)
-                                    await ctx.send(embed=embedTrack, delete_after=5)
-                            else:
-                                await ctx.send(
-                                    "Invalid choice. Please select a number from the list."
-                                )
-                        except asyncio.TimeoutError:
-                            await ctx.send("You took too long to make a choice.")
-            else:
-                errorEmbed = discord.Embed(
-                    description=f"You are not on a voice channel! Join one and try again.",
+        if ctx.author.voice.channel:
+            if self.music_channel is None:
+                self.music_channel = ctx.channel.id
+            elif self.music_channel is not ctx.channel.id:
+                embedError = discord.Embed(
+                    description=f"This is not the music channel. Go to <#{self.music_channel}>",
                     color=0xB50000,
                 )
-                await ctx.send(embed=errorEmbed)
+                await ctx.send(embed=embedError)
+                return
+
+            channel = ctx.author.voice.channel
+            mchannel = self.bot.get_channel(self.music_channel)
+
+            if self.vc is None or not self.vc.is_connected():
+                self.vc = await channel.connect(cls=wavelink.Player)
+                joinEmbed = discord.Embed(
+                    description=f"I have been summoned on {channel.mention}",
+                    color=0xB50000,
+                )
+                await ctx.send(embed=joinEmbed)
+                self.volume = 100
+                await self.set_volume(100)
+
+            # Check if there's a currently playing track
+            if not self.vc.is_playing():
+                if not tracks:
+                    await mchannel.send(
+                        f"I searched for {query}, but I found nothing."
+                    )
+                else:
+                    num_results = min(
+                        5, len(tracks)
+                    )  # Get up to 5 search results or all available results
+
+                    # Create a description string to display the search results
+                    description = "Please choose a track to play:\n"
+
+                    for i, track in enumerate(tracks[:num_results]):
+                        description += f"{i + 1}. [{track.title}]({track.uri}) - Singer: {track.author}\n"
+
+                    # Create an embedded message with the description
+                    embedSearchResults = discord.Embed(
+                        title="Search Results",
+                        description=description,
+                        color=0xB50000,
+                    )
+
+                    await ctx.send(embed=embedSearchResults)
+
+                    def check(m):
+                        return m.author == ctx.author and m.channel == ctx.channel
+
+                    try:
+                        response = await ctx.bot.wait_for(
+                            "message", check=check, timeout=30
+                        )
+                        choice = int(response.content)
+
+                        if 1 <= choice <= num_results:
+                            chosen_track = tracks[choice - 1]
+                            self.queue.append(chosen_track)
+
+                            if not self.vc.is_playing():
+                                await self.play_next(chosen_track)
+                            else:
+                                embedTrack = discord.Embed(
+                                    description=f"Track Title: [{chosen_track.title}]({chosen_track.uri}) - Singer: {chosen_track.author}",
+                                    color=0xB50000,
+                                )
+                                embedTrack.set_author(name="Added To Queue")
+                                embedTrack.set_thumbnail(url=chosen_track.thumbnail)
+                                await ctx.send(embed=embedTrack, delete_after=5)
+                        else:
+                            await ctx.send(
+                                "Invalid choice. Please select a number from the list."
+                            )
+                    except asyncio.TimeoutError:
+                        await ctx.send("You took too long to make a choice")
+            else:
+                if not tracks:
+                    await mchannel.send(
+                        f"I searched for {query}, but I found nothing."
+                    )
+                else:
+                    num_results = min(
+                        5, len(tracks)
+                    )  # Get up to 5 search results or all available results
+
+                    # Create a description string to display the search results
+                    description = "Please choose a track to play:\n"
+
+                    for i, track in enumerate(tracks[:num_results]):
+                        description += f"{i + 1}. [{track.title}]({track.uri}) - Singer: {track.author}\n"
+
+                    # Create an embedded message with the description
+                    embedSearchResults = discord.Embed(
+                        title="Search Results",
+                        description=description,
+                        color=0xB50000,
+                    )
+
+                    await ctx.send(embed=embedSearchResults, delete_after=30)
+
+                    def check(m):
+                        return m.author == ctx.author and m.channel == ctx.channel
+
+                    try:
+                        response = await ctx.bot.wait_for(
+                            "message", check=check, timeout=30
+                        )
+                        choice = int(response.content)
+
+                        if 1 <= choice <= num_results:
+                            chosen_track = tracks[choice - 1]
+                            self.queue.append(chosen_track)
+
+                            if not self.vc.is_playing():
+                                await self.play_next(chosen_track)
+                            else:
+                                embedTrack = discord.Embed(
+                                    description=f"Track Title: [{chosen_track.title}]({chosen_track.uri}) - Singer: {chosen_track.author}",
+                                    color=0xB50000,
+                                )
+                                embedTrack.set_author(name="Added To Queue")
+                                embedTrack.set_thumbnail(url=chosen_track.thumbnail)
+                                await ctx.send(embed=embedTrack, delete_after=5)
+                        else:
+                            await ctx.send(
+                                "Invalid choice. Please select a number from the list."
+                            )
+                    except asyncio.TimeoutError:
+                        await ctx.send("You took too long to make a choice.")
+        else:
+            errorEmbed = discord.Embed(
+                description=f"You are not on a voice channel! Join one and try again.",
+                color=0xB50000,
+            )
+            await ctx.send(embed=errorEmbed)
 
     @commands.command()
     async def queue(self, ctx):
