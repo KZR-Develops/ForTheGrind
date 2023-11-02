@@ -16,9 +16,9 @@ with open("config.json", "r") as f:
 class DeveloperTools(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-    
+
     @commands.has_role(1145345878777925763)
-    @commands.group(invoke_without_command=True, aliases=['cog'])
+    @commands.group(invoke_without_command=True, aliases=["cog"])
     async def plugin(self, ctx):
         if ctx.invoked_subcommand is None:
             prefix = "<:Empty:1134737303324065873><:SBM:1134737397746257940> "
@@ -48,18 +48,18 @@ class DeveloperTools(commands.Cog):
     async def unload(self, ctx, extension):
         await ctx.message.delete()
         try:
-            print('─' * 70)
+            print("─" * 70)
             print(f"Attempting to unload {extension}...")
-            print('─' * 70)
+            print("─" * 70)
             await self.bot.unload_extension(f"cogs.{extension}")
             embedAction = discord.Embed(
                 description=f"{extension} has been unloaded with no errors.",
                 color=0x00FF00,
             )
 
-            print('─' * 70)
+            print("─" * 70)
             print(f"{extension} has been unloaded successfuly.")
-            print('─' * 70)
+            print("─" * 70)
             await ctx.send(embed=embedAction, delete_after=3)
         except Exception as e:
             embedError = discord.Embed(
@@ -77,9 +77,9 @@ class DeveloperTools(commands.Cog):
         await ctx.message.delete()
 
         try:
-            print('─' * 70)
+            print("─" * 70)
             print(f"Attempting to load {extension}...")
-            print('─' * 70)
+            print("─" * 70)
             await self.bot.reload_extension(f"cogs.{extension}")
             embedAction = discord.Embed(
                 description=f"{extension} has been loaded with no errors.",
@@ -87,9 +87,9 @@ class DeveloperTools(commands.Cog):
             )
             await ctx.send(embed=embedAction, delete_after=5)
 
-            print('─' * 70)
+            print("─" * 70)
             print(f"{extension} has been loaded successfuly.")
-            print('─' * 70)
+            print("─" * 70)
         except Exception as e:
             embedError = discord.Embed(
                 description=f"An error occured while loading module named {extension}.\n {e}.",
@@ -105,9 +105,9 @@ class DeveloperTools(commands.Cog):
         await ctx.message.delete()
         if extension != None:
             try:
-                print('─' * 70)
+                print("─" * 70)
                 print("Attempting to reload active bot extensions...")
-                print('─' * 70)
+                print("─" * 70)
                 if extension == "Music":
                     cog = self.bot.get_cog("Music")
                     if cog:
@@ -116,7 +116,9 @@ class DeveloperTools(commands.Cog):
                             try:
                                 await ctx.invoke(leave_command)
                             except Exception as e:
-                                print(f"[EXTENSION ERROR] An error occurred while reloading module named Music: {e}")
+                                print(
+                                    f"[EXTENSION ERROR] An error occurred while reloading module named Music: {e}"
+                                )
                         else:
                             print("The 'leave' command was not found in the Music cog.")
                     else:
@@ -128,9 +130,9 @@ class DeveloperTools(commands.Cog):
                     color=0x00FF00,
                 )
                 await ctx.send(embed=embedAction, delete_after=5)
-                print('─' * 70)
+                print("─" * 70)
                 print(f"{extension} has been reloaded successfuly.")
-                print('─' * 70)
+                print("─" * 70)
             except Exception as e:
                 embedError = discord.Embed(
                     description=f"An error occured while reloading module named {extension}.\n {e}.",
@@ -192,9 +194,9 @@ class DeveloperTools(commands.Cog):
     @commands.is_owner()
     async def restart(self, ctx):
         os.system("cls")
+        await ctx.send("Initiating a restart...")
         print("Initiating a restart.")
         await asyncio.sleep(5)
-        await ctx.send("Initiating a restart...")
 
         config["Restarted"] = "True"
 
@@ -209,8 +211,15 @@ class DeveloperTools(commands.Cog):
         subprocess.Popen(["start", "cmd", "/c", "start_bot.bat"], shell=True)
         print("Bot started on another process...")
         time.sleep(10)
-        os.system(f"taskkill /F /PID {pid}")
         os._exit(0)
+
+    @commands.command()
+    @commands.is_owner()
+    async def cli(self, ctx, *, cmd: str = None):
+        if cmd is not None:
+            os.system(cmd)
+        else:
+            pass
 
 
 async def setup(bot):

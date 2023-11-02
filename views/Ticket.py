@@ -73,7 +73,7 @@ async def generate(self, interaction: discord.Interaction, type):
 
     if type == "question":
         embedAssistance.set_footer(text=f"Type: Question")
-        await channel.send(embed=embedAssistance, view=StarupSettings())
+        await channel.send(embed=embedAssistance, view=StartupSettings())
         await ticketDashboard(
             interaction=interaction, type="Question", claimStatus="Open"
         )
@@ -252,7 +252,7 @@ class AppealTypeSelector(discord.ui.View):
             await interaction.response.send_message(embed=embedFollowUp)
 
 
-class StarupSettings(discord.ui.View):
+class StartupSettings(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
 

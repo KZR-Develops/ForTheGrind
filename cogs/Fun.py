@@ -2,7 +2,6 @@ import discord
 import json
 import random
 import aiohttp
-import requests
 
 from discord.ext import commands
 
@@ -124,29 +123,29 @@ class Fun(commands.Cog):
         # Your API URL
         api_url = "https://dog.ceo/api/breeds/image/random"
 
-        response = requests.get(api_url)
+        async with aiohttp.ClientSession() as session:
+            async with session.get(api_url) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    if data["status"] == "success":
+                        image_url = data["message"]
 
-        if response.status_code == 200:
-            data = response.json()
-            if data["status"] == "success":
-                image_url = data["message"]
-
-                # Send the image in the Discord channel
-                await ctx.send(image_url)
+                        # Send the image in the Discord channel
+                        await ctx.send(image_url)
 
     @commands.command()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def cat(self, ctx):
         api_url = "https://api.thecatapi.com/v1/images/search"
 
-        response = requests.get(api_url)
+        async with aiohttp.ClientSession() as session:
+            async with session.get(api_url) as response:
+                if response.status == 200:
+                    data = await response.json()
 
-        if response.status_code == 200:
-            data = response.json()
-
-            if data and isinstance(data, list) and "url" in data[0]:
-                image_url = data[0]["url"]
-                await ctx.send(image_url)
+                    if data and isinstance(data, list) and "url" in data[0]:
+                        image_url = data[0]["url"]
+                        await ctx.send(image_url)
 
     @commands.command()
     @commands.cooldown(1, 5, commands.BucketType.user)
@@ -154,14 +153,12 @@ class Fun(commands.Cog):
         # API URL for dad jokes
         api_url = "https://icanhazdadjoke.com/"
 
-        # Set headers to specify we want a plain text response
-        headers = {"Accept": "text/plain"}
-
-        response = requests.get(api_url, headers=headers)
-
-        if response.status_code == 200:
-            joke = response.text
-            await ctx.send(joke)
+        # Create an aiohttp session
+        async with aiohttp.ClientSession() as session:
+            async with session.get(api_url, headers={"Accept": "text/plain"}) as response:
+                if response.status == 200:
+                    joke = await response.text()
+                    await ctx.send(joke)
 
 
 async def setup(bot):

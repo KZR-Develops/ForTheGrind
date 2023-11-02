@@ -162,12 +162,9 @@ cython_debug/
 .vscode/
 
 # Ignore Server File Dumps
-extras\
-img\
+extras/
+img/
 
 # Ignore Bot File Dumps
-cogs\Dev
-extras/bank.json
-extras/cases.json
-extras/warnings.json
+cogs/Dev/
 prodInfo.json

@@ -2,7 +2,6 @@ import discord
 import platform
 import time
 
-from colorama import Back, Fore, Style
 from discord.ext import commands
 
 
