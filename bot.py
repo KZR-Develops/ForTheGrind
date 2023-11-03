@@ -1,3 +1,4 @@
+import sys
 import aiohttp
 import discord
 import logging
@@ -8,7 +9,7 @@ import time
 import platform
 import wavelink
 
-from dotenv import load_dotenv
+from dotenv import load_dotenv, set_key
 
 from views.Ticket import *
 from views.ReactionRoles import *
@@ -19,6 +20,10 @@ from cogs.utils.utility import set_boot_time
 
 startTime = time.time()
 
+# Set the encoding to UTF-8
+sys.stdout = open(sys.stdout.fileno(), mode='w', encoding='utf8', buffering=1)
+sys.stderr = open(sys.stderr.fileno(), mode='w', encoding='utf8', buffering=1)
+
 with open("config.json", "r") as f:
     config = json.load(f)
 
@@ -28,7 +33,8 @@ dpyToken = os.getenv("dpyToken")
 with open("prodInfo.json", "r") as f:
     prodInfo = json.load(f)
 
-log_file = "discord.log"
+log_directory = "C:/Life/Programming/ForTheGrindBot/logs"
+log_file = os.path.join(log_directory, "discord.log")
 log_retention_period = 7
 dt_fmt = "%m/%d/%y @ %I:%M %p"
 
@@ -110,26 +116,7 @@ class Main(commands.AutoShardedBot):
     async def on_ready(self):
         pid = os.getpid()
 
-        with open(".env", "r") as env_file:
-            env_content = env_file.read()
-
-        pid_line = f'PID="{pid}"'
-
-        with open(".env", "r") as env_file:
-            env_content = env_file.read()
-
-        if "PID=" in env_content:
-            env_content = "\n".join(
-                [
-                    pid_line if line.startswith("PID=") else line
-                    for line in env_content.split("\n")
-                ]
-            )
-        else:
-            env_content += f"\n{pid_line}"
-
-        with open(".env", "w") as env_file:
-            env_file.write(env_content)
+        set_key(".env", "PID", f"{pid}")
 
         if not self.added:
             self.add_view(StartupSettings())

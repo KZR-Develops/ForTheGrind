@@ -8,6 +8,8 @@ import json
 from discord.ext import commands
 from cogs.Music import Music
 
+from dotenv import set_key
+
 # Fetch configuration datas
 with open("config.json", "r") as f:
     config = json.load(f)
@@ -186,7 +188,7 @@ class DeveloperTools(commands.Cog):
         await asyncio.sleep(5)
         await self.bot.close()
         print("Closed the connection between the bot and the gateway.")
-
+        set_key(".env", "PID", "None")
         self.bot.clear()
         os._exit(0)
 
