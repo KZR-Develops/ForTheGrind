@@ -88,11 +88,11 @@ class Main(commands.AutoShardedBot):
                 print("Error while connecting to node 3")
 
             print("─" * 70)
-            print("[WAVELINK] Successfully connected to Lavalink nodes!")
+            print(" [WAVELINK] Successfully connected to Lavalink nodes!")
             print("─" * 70)
         except:
             print("─" * 70)
-            print("[WAVELINK] Error while initiating a connection between the nodes")
+            print(" [WAVELINK] Error while initiating a connection between the nodes")
             print("─" * 70)
 
         await asyncio.sleep(3)
@@ -103,12 +103,12 @@ class Main(commands.AutoShardedBot):
                     await bot.load_extension(f"cogs.{filename[:-3]}")
                     print("─" * 70)
                     print(
-                        f"[EXTENSIONS] {filename[:-3]} has been loaded with no errors."
+                        f" [EXTENSIONS] {filename[:-3]} has been loaded with no errors."
                     )
                     print("─" * 70)
                 except Exception as e:
                     print(
-                        "[STARTUP ERROR] Failed to load extension {}\n{}: {}".format(
+                        " [STARTUP ERROR] Failed to load extension {}\n{}: {}".format(
                             filename, type(e).__name__, e
                         )
                     )

@@ -8,7 +8,7 @@ import json
 from discord.ext import commands
 from cogs.Music import Music
 
-from dotenv import set_key
+from dotenv import set_key, load_dotenv
 
 # Fetch configuration datas
 with open("config.json", "r") as f:
@@ -16,6 +16,7 @@ with open("config.json", "r") as f:
 
 
 class DeveloperTools(commands.Cog):
+
     def __init__(self, bot):
         self.bot = bot
 
@@ -26,21 +27,22 @@ class DeveloperTools(commands.Cog):
             prefix = "<:Empty:1134737303324065873><:SBM:1134737397746257940> "
 
             all_cogs = set(self.bot.cogs.keys())  # All cogs
-            loaded_cogs = set(
-                cog.__class__.__name__ for cog in self.bot.cogs.values()
-            )  # Loaded cogs
+            loaded_cogs = set(cog.__class__.__name__
+                              for cog in self.bot.cogs.values())  # Loaded cogs
             # unloaded_cogs = all_cogs - loaded_cogs
 
-            loaded_cogs_text = "\n".join(f"{prefix}{cog}" for cog in loaded_cogs)
+            loaded_cogs_text = "\n".join(f"{prefix}{cog}"
+                                         for cog in loaded_cogs)
             # unloaded_cogs_text = "\n".join(f"{prefix}{cog}" for cog in unloaded_cogs)
 
             if not loaded_cogs:
                 loaded_cogs_text = f"{prefix}No loaded cogs."
 
-            embedCogs = discord.Embed(title="All Available Plugins", color=0xB50000)
+            embedCogs = discord.Embed(title="All Available Plugins",
+                                      color=0xB50000)
             embedCogs.add_field(
-                name="<:B6:1134737298030874634> Loaded Plugins", value=loaded_cogs_text
-            )
+                name="<:B6:1134737298030874634> Loaded Plugins",
+                value=loaded_cogs_text)
             # embedCogs.add_field(name="<:B6:1134737298030874634> Unloaded Plugins", value=unloaded_cogs_text)
             await ctx.send(embed=embedCogs)
         else:
@@ -65,7 +67,8 @@ class DeveloperTools(commands.Cog):
             await ctx.send(embed=embedAction, delete_after=3)
         except Exception as e:
             embedError = discord.Embed(
-                description=f"An error occured while unloading module named {extension}.\n {e}.",
+                description=
+                f"An error occured while unloading module named {extension}.\n {e}.",
                 color=0xB50000,
             )
             print(
@@ -94,7 +97,8 @@ class DeveloperTools(commands.Cog):
             print("─" * 70)
         except Exception as e:
             embedError = discord.Embed(
-                description=f"An error occured while loading module named {extension}.\n {e}.",
+                description=
+                f"An error occured while loading module named {extension}.\n {e}.",
                 color=0xB50000,
             )
             print(
@@ -122,13 +126,16 @@ class DeveloperTools(commands.Cog):
                                     f"[EXTENSION ERROR] An error occurred while reloading module named Music: {e}"
                                 )
                         else:
-                            print("The 'leave' command was not found in the Music cog.")
+                            print(
+                                "The 'leave' command was not found in the Music cog."
+                            )
                     else:
                         print("The Music cog was not found.")
 
                 await self.bot.reload_extension(f"cogs.{extension}")
                 embedAction = discord.Embed(
-                    description=f"{extension} has been reloaded with no errors.",
+                    description=
+                    f"{extension} has been reloaded with no errors.",
                     color=0x00FF00,
                 )
                 await ctx.send(embed=embedAction, delete_after=5)
@@ -137,7 +144,8 @@ class DeveloperTools(commands.Cog):
                 print("─" * 70)
             except Exception as e:
                 embedError = discord.Embed(
-                    description=f"An error occured while reloading module named {extension}.\n {e}.",
+                    description=
+                    f"An error occured while reloading module named {extension}.\n {e}.",
                     color=0xB50000,
                 )
                 print(
@@ -150,18 +158,23 @@ class DeveloperTools(commands.Cog):
                     if not filename.startswith("DeveloperTools"):
                         try:
                             await asyncio.sleep(3)
-                            await self.bot.reload_extension(f"cogs.{filename[:-3]}")
+                            await self.bot.reload_extension(
+                                f"cogs.{filename[:-3]}")
                             embedAction = discord.Embed(
-                                description=f"{filename[:-3]} has been reloaded with no errors.",
+                                description=
+                                f"{filename[:-3]} has been reloaded with no errors.",
                                 color=0x00FF00,
                             )
                             await ctx.send(embed=embedAction, delete_after=5)
                             print("─" * 70)
-                            print(f"{filename[:-3]} has been reloaded with no errors.")
+                            print(
+                                f"{filename[:-3]} has been reloaded with no errors."
+                            )
                             print("─" * 70)
                         except Exception as e:
                             embedError = discord.Embed(
-                                description=f"An error occured while reloading module named {filename[:-3]}.\n {e}.",
+                                description=
+                                f"An error occured while reloading module named {filename[:-3]}.\n {e}.",
                                 color=0xB50000,
                             )
                             print(
@@ -170,7 +183,8 @@ class DeveloperTools(commands.Cog):
                             await ctx.send(embed=embedError, delete_after=5)
 
             embedAction = discord.Embed(
-                description=f"All plugins has been reloaded successfuly with no errors.",
+                description=
+                f"All plugins has been reloaded successfuly with no errors.",
                 color=0x00FF00,
             )
             await ctx.send(embed=embedAction, delete_after=10)
@@ -179,7 +193,7 @@ class DeveloperTools(commands.Cog):
     @commands.is_owner()
     async def shutdown(self, ctx):
         await ctx.send("Shutting down...")
-        config["Restarted"] == "False"
+        config["Restarted"] = "False"
 
         with open("./config.json", "w") as f:
             json.dump(config, f, indent=4)
@@ -195,25 +209,42 @@ class DeveloperTools(commands.Cog):
     @commands.command()
     @commands.is_owner()
     async def restart(self, ctx):
-        os.system("cls")
+        load_dotenv(override=True)
+        oldBotPID = os.getenv("PID")  # Save the old bot's PID
         await ctx.send("Initiating a restart...")
-        print("Initiating a restart.")
-        await asyncio.sleep(5)
-
         config["Restarted"] = "True"
 
         with open("./config.json", "w") as f:
-            json.dump(config, f)
+            json.dump(config, f, indent=4)
+        
+        set_key(".env", "PID", "None")
 
-        await ctx.message.delete()
         await self.bot.close()
         print("Closed the connection between the bot and the gateway.")
-        pid = os.getpid()
-        time.sleep(10)  # Await for other tasks to finish
-        subprocess.Popen(["start", "cmd", "/c", "start_bot.bat"], shell=True)
-        print("Bot started on another process...")
+        os.system("cls")
+
+        print("Starting the bot; this might take a while...")
+
+        # Start the new bot process by opening a new command prompt and running the script
+        try:
+            result = subprocess.run([
+                "start", "cmd", "/k", "C:\Life\Programming\ForTheGrindBot\start_bot.bat"
+            ], shell=True)
+        except subprocess.CalledProcessError as e:
+            print(f"Error starting the new bot process: {e}")
+
+
+        # Wait for some time to ensure the new process has started
         time.sleep(10)
-        os._exit(0)
+
+        # Kill the old process using the saved PID
+        os.system(f"taskkill /F /PID {oldBotPID}")
+
+        load_dotenv(override=True)
+        newBotPID = os.getenv("PID")
+        print(f"Successfully started the bot with Process ID: {newBotPID}")
+
+
 
     @commands.command()
     @commands.is_owner()
