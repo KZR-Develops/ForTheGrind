@@ -11,7 +11,6 @@ def start_bot():
     try:
         os.system("cls")
         print("Starting the bot this might take a while...")
-        time.sleep(3)
         subprocess.Popen([
             "start", "cmd", "/k",
             "C:\Life\Programming\ForTheGrindBot\start_bot.bat"
