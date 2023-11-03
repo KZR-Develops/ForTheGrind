@@ -137,7 +137,7 @@ class Music(commands.Cog):
 
             await mchannel.send(embed=embedNoTracks, delete_after=120)
 
-    @commands.command()
+    @commands.command(aliases=['summon'])
     async def join(self, ctx):
         self.last_song_played_time = time.time()
 
@@ -163,7 +163,7 @@ class Music(commands.Cog):
             )
             await ctx.send(embed=errorEmbed)
 
-    @commands.command()
+    @commands.command(aliases=['disconnect'])
     async def leave(self, ctx):
         mchannel = self.bot.get_channel(self.music_channel)
 
@@ -266,7 +266,7 @@ class Music(commands.Cog):
             except asyncio.TimeoutError:
                 await ctx.send("You took too long to make a choice.")
 
-    @commands.command()
+    @commands.command(aliases=['p'])
     async def play(self, ctx, *title):
         await ctx.message.delete()
 
