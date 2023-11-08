@@ -51,7 +51,7 @@ async def generate(self, interaction: discord.Interaction, type):
     self.ticket_name = config["Total Tickets"] + 1
     config["Total Tickets"] = self.ticket_name
     with open("./config.json", "w") as file:
-        json.dump(config, file)
+        json.dump(config, file, indent=4)
 
     channel_name = f"ticket-{self.ticket_name}"
     overwrites = {

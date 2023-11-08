@@ -63,7 +63,7 @@ def restart():
         config["Restarted"] = "True"
 
         with open("./config.json", "w") as f:
-            json.dump(config, f)
+            json.dump(config, f, indent=4)
     else:
         print("Bot is not running on any process...")
 

@@ -4,22 +4,22 @@ import json
 from .DeveloperTools import DeveloperTools
 from discord.ext import commands
 
-with open(file="./config.json", mode="r+") as configFile:
-    config = json.load(configFile)
-
-
 class ConfigLoader(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     @commands.group()
-    @commands.has_permissions(manage_guild=True)
+    @commands.has_role(1145345878777925763)
     async def config(self, ctx):
         if ctx.invoked_subcommand is None:
             pass
 
     @config.command()
     async def modlogs(self, ctx, channel: discord.TextChannel):
+        # Fetch configuration datas
+        with open("./config.json", "r") as f:
+            config = json.load(f)
+
         oldmodlogs = config["channels"]["modlogs"]
         if channel is None:
             embedError = discord.Embed(
@@ -48,6 +48,11 @@ class ConfigLoader(commands.Cog):
 
     @config.command()
     async def prefix(self, ctx, prefix: str):
+        
+        # Fetch configuration datas
+        with open("./config.json", "r") as f:
+            config = json.load(f)
+
         oldprefix = config["prefix"]
         if prefix is None:
             embedError = discord.Embed(
@@ -65,7 +70,7 @@ class ConfigLoader(commands.Cog):
                 if len(prefix) <= 4:
                     config["prefix"] = prefix
 
-                    with open("./config.json", "w") as configFile:
+                    with open("./config.json", "a") as configFile:
                         json.dump(config, configFile, indent=4)
 
                     embedSuccess = discord.Embed(

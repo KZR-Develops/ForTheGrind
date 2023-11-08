@@ -19,7 +19,7 @@ class ModerationTools(commands.Cog):
         self.bot = bot
         self.limit = config["Limits"]["Purge"]
 
-    @commands.has_permissions(manage_messages=True)
+    @commands.has_any_role(1145295540549062696, 1134472355935178752)
     @commands.group(invoke_without_command=True)
     @commands.cooldown(1, 10, commands.BucketType.member)
     async def purge(self, ctx, amount):
@@ -257,7 +257,7 @@ class ModerationTools(commands.Cog):
 
     ### Punishment System ###
     @commands.command()
-    @commands.has_permissions(kick_members=True)
+    @commands.has_any_role(1145295540549062696, 1134472355935178752)
     async def kick(self, ctx, member: discord.Member, *, reason="No reason was provided"):
         if member == ctx.author:
             embedError = discord.Embed(
@@ -342,7 +342,7 @@ class ModerationTools(commands.Cog):
             await modlogs.send(embed=embedLog)
 
     @commands.command()
-    @commands.has_permissions(ban_members=True)
+    @commands.has_any_role(1145295540549062696, 1145345878777925763, 1145295915159138334, 1145296297058910269)
     @commands.cooldown(1, 3, commands.BucketType.user)
     async def ban(self, ctx, member: discord.Member, *, reason="No reason was provided"):
         await ctx.message.delete()
@@ -428,7 +428,7 @@ class ModerationTools(commands.Cog):
             await modlogs.send(embed=embedLog)
 
     @commands.command()
-    @commands.has_permissions(ban_members=True)
+    @commands.has_any_role(1145295915159138334, 1145295540549062696, 1145345878777925763)
     async def unban(self, ctx, userID: int, *, reason: str = "No reason was provided."):
         await ctx.message.delete()
         # Attempt to get the banned user using the userID
@@ -486,7 +486,7 @@ class ModerationTools(commands.Cog):
 
     ### Warning System ###
     @commands.command()
-    @commands.has_permissions(kick_members=True)
+    @commands.has_any_role(1145295540549062696, 1134472355935178752)
     @commands.cooldown(1, 3, commands.BucketType.user)
     async def warn(self, ctx, member: discord.Member, *, reason="No reason was provided"):
         if member == ctx.author:
@@ -609,7 +609,7 @@ class ModerationTools(commands.Cog):
             await modlogs.send(embed=embedLog)
 
     @commands.command()
-    @commands.has_permissions(manage_guild=True)
+    @commands.has_any_role(1145295540549062696, 1145345878777925763, 1145295915159138334)
     @commands.cooldown(1, 3, commands.BucketType.user)
     async def clearwarnings(self, ctx, member: discord.Member):
         if member == ctx.author:
@@ -689,6 +689,7 @@ class ModerationTools(commands.Cog):
             await modlogs.send(embed=embedLog)
 
     @commands.command(aliases=["warnings", "checkwarns", "warns"])
+    @commands.has_any_role(1145295540549062696, 1134472355935178752)
     @commands.cooldown(1, 3, commands.BucketType.user)
     async def checkwarnings(self, ctx, member: discord.Member = None):
         await ctx.message.delete()
@@ -729,7 +730,7 @@ class ModerationTools(commands.Cog):
 
     ### Lockdown System ###
     @commands.command(aliases=["lockserver"])
-    @commands.has_permissions(administrator=True)
+    @commands.has_any_role(1145295540549062696, 1145345878777925763)
     async def lockdown(self, ctx):
         # Load the JSON file containing the cases
         with open("./extras/cases.json", "r") as f:
@@ -804,7 +805,7 @@ class ModerationTools(commands.Cog):
         await modlogs.send(embed=embedLog)
 
     @commands.command(aliases=["unlockdown", "liftlock"])
-    @commands.has_permissions(administrator=True)
+    @commands.has_any_role(1145295540549062696, 1145345878777925763)
     async def unlock(self, ctx):
         # Load the JSON file containing the cases
         with open("./extras/cases.json", "r") as f:
@@ -866,12 +867,7 @@ class ModerationTools(commands.Cog):
         await modlogs.send(embed=embedLog)
 
     @commands.command()
-    @commands.has_any_role(
-        1134743832345448498,
-        1145297118735642715,
-        1145283225875390504,
-        1145295915159138334,
-    )
+    @commands.has_any_role(1145295540549062696, 1134472355935178752)
     async def announce(self, ctx, channel: discord.TextChannel, *, message):
         embed = discord.Embed(description=f"{message}", color=0xB50000)
 

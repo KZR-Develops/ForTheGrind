@@ -15,7 +15,6 @@ class TicketingSetup(commands.Cog):
         self.bot = bot
 
     @commands.group(name="ticket")
-    @commands.has_permissions(manage_guild=True)
     async def ticket(self, ctx):
         try:
             if ctx.invoked_subcommand is None:
@@ -30,6 +29,7 @@ class TicketingSetup(commands.Cog):
             await ctx.send(embed=embedError, delete_after=5)
 
     @ticket.command()
+    @commands.has_role(1170204155411972136)
     async def setup(self, ctx):
         embedSetup = discord.Embed(
             title="Do you need help?",
@@ -48,6 +48,7 @@ class TicketingSetup(commands.Cog):
         await ctx.message.delete()
 
     @ticket.command()
+    @commands.has_role(1170204155411972136)
     async def setdashboard(self, ctx, channel: discord.TextChannel = None):
         olddashboard = config["channels"]["ticket_dashboard"]
         if channel is None:

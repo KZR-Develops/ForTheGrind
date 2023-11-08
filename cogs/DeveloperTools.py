@@ -10,10 +10,6 @@ from cogs.Music import Music
 
 from dotenv import set_key, load_dotenv
 
-# Fetch configuration datas
-with open("config.json", "r") as f:
-    config = json.load(f)
-
 
 class DeveloperTools(commands.Cog):
 
@@ -191,11 +187,27 @@ class DeveloperTools(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def shutdown(self, ctx):
-        await ctx.send("Shutting down...")
+    async def shutdown(self, ctx, *, reason: str = None):
+        
+        # Fetch configuration datas
+        with open("./config.json", "r") as f:
+            config = json.load(f)
+
+        if reason is None:
+            print("Initiating system halt.")
+            print("No reason was provided")
+        else:
+            print("Initiating system halt.")
+            print(f"Reason: {reason}")
+
+        botEmbed = discord.Embed(
+            description="Initiating system halt.",
+            color=0xb50000
+        )
+        await ctx.send(embed=botEmbed)
         config["Restarted"] = "False"
 
-        with open("./config.json", "w") as f:
+        with open("./config.json", "a") as f:
             json.dump(config, f, indent=4)
 
         await ctx.message.delete()
@@ -206,44 +218,96 @@ class DeveloperTools(commands.Cog):
         self.bot.clear()
         os._exit(0)
 
-    @commands.command()
+    @commands.command(aliases=['reboot'])
     @commands.is_owner()
-    async def restart(self, ctx):
-        load_dotenv(override=True)
-        oldBotPID = os.getenv("PID")  # Save the old bot's PID
-        await ctx.send("Initiating a restart...")
-        config["Restarted"] = "True"
-
-        with open("./config.json", "w") as f:
-            json.dump(config, f, indent=4)
+    async def restart(self, ctx, mode: str = None, *, reason: str = None):
         
-        set_key(".env", "PID", "None")
+        # Fetch configuration datas
+        with open("./config.json", "r") as f:
+            config = json.load(f)
+            
+        if reason is None and mode == "FULL" or mode is None:
+            print("Initiating full system restart.")
+            print("No reason was provided")
+        elif reason is not None and mode == "FULL":
+            print("Initiating full system restart.")
+            print(f"Reason: {reason}")
+        elif reason is None and mode == "PARTIAL":
+            print("Initiating partial system restart.")
+            print("No reason was provided")
+        elif reason is not None and mode == "PARTIAL":
+            print("Initiating partial system restart.")
+            print(f"Reason: {reason}")
 
-        await self.bot.close()
-        print("Closed the connection between the bot and the gateway.")
-        os.system("cls")
+        if mode == "FULL" or mode is None:    
+            load_dotenv(override=True)
+            oldBotPID = os.getenv("PID")  # Save the old bot's PID
+            botEmbed = discord.Embed(
+                description="Initiating system restart.",
+                color=0xb50000
+            )
+            await ctx.send(embed=botEmbed)
 
-        print("Starting the bot; this might take a while...")
+            config["Restarted"] = "True"
 
-        # Start the new bot process by opening a new command prompt and running the script
-        try:
-            result = subprocess.run([
-                "start", "cmd", "/k", "C:\Life\Programming\ForTheGrindBot\start_bot.bat"
-            ], shell=True)
-        except subprocess.CalledProcessError as e:
-            print(f"Error starting the new bot process: {e}")
+            with open("./config.json", "w") as f:
+                json.dump(config, f, indent=4)
+            
+            set_key(".env", "PID", "None")
+
+            await self.bot.close()
+            print("Closed the connection between the bot and the gateway.")
+            os.system("cls")
+
+            print("Starting the bot; this might take a while...")
+
+            # Start the new bot process by opening a new command prompt and running the script
+            try:
+                result = subprocess.run([
+                    "start", "cmd", "/k", "C:\Life\Programming\ForTheGrindBot\start_bot.bat"
+                ], shell=True)
+            except subprocess.CalledProcessError as e:
+                print(f"Error starting the new bot process: {e}")
 
 
-        # Wait for some time to ensure the new process has started
-        time.sleep(10)
+            # Wait for some time to ensure the new process has started
+            time.sleep(10)
 
-        # Kill the old process using the saved PID
-        os.system(f"taskkill /F /PID {oldBotPID}")
+            # Kill the old process using the saved PID
+            os.system(f"taskkill /F /PID {oldBotPID}")
 
-        load_dotenv(override=True)
-        newBotPID = os.getenv("PID")
-        print(f"Successfully started the bot with Process ID: {newBotPID}")
-
+            load_dotenv(override=True)
+            newBotPID = os.getenv("PID")
+            print(f"Successfully started the bot with Process ID: {newBotPID}")
+        
+        elif mode == "PARTIAL":
+            for filename in os.listdir("./cogs"):
+                if filename.endswith(".py"):
+                    if not filename.startswith("DeveloperTools"):
+                        try:
+                            await self.bot.reload_extension(
+                                f"cogs.{filename[:-3]}")
+                            embedAction = discord.Embed(
+                                description=
+                                f"{filename[:-3]} has been reloaded with no errors.",
+                                color=0x00FF00,
+                            )
+                            await ctx.send(embed=embedAction, delete_after=5)
+                            print("─" * 70)
+                            print(
+                                f"{filename[:-3]} has been reloaded with no errors."
+                            )
+                            print("─" * 70)
+                        except Exception as e:
+                            embedError = discord.Embed(
+                                description=
+                                f"An error occured while reloading module named {filename[:-3]}.\n {e}.",
+                                color=0xB50000,
+                            )
+                            print(
+                                f"[EXTENSION ERROR] An error occured while reloading module named {filename[:-3]}.\n {e}."
+                            )
+                            await ctx.send(embed=embedError, delete_after=5)
 
 
     @commands.command()

@@ -1,0 +1,42 @@
+[11/05/23 @ 11:27 PM] [INFO]: Shard ID 0 has successfully RESUMED session 36c48c9b84104eea3269235b909ab2c1.
+[11/05/23 @ 11:52 PM] [INFO]: Shard ID 0 has successfully RESUMED session 36c48c9b84104eea3269235b909ab2c1.
+[11/06/23 @ 12:20 AM] [INFO]: Shard ID 0 has successfully RESUMED session 36c48c9b84104eea3269235b909ab2c1.
+[11/06/23 @ 01:09 AM] [INFO]: Shard ID 0 has successfully RESUMED session 36c48c9b84104eea3269235b909ab2c1.
+[11/06/23 @ 01:32 AM] [INFO]: Shard ID 0 has successfully RESUMED session 36c48c9b84104eea3269235b909ab2c1.
+[11/06/23 @ 01:47 AM] [ERROR]: Ignoring exception in on_wavelink_track_end
+Traceback (most recent call last):
+  File "C:\Life\Programming\ForTheGrindBot\.venv\Lib\site-packages\discord\client.py", line 441, in _run_event
+    await coro(*args, **kwargs)
+  File "C:\Life\Programming\ForTheGrindBot\cogs\Music.py", line 71, in on_wavelink_track_end
+    await self.play_next()  # Track finished, play the next one
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Life\Programming\ForTheGrindBot\cogs\Music.py", line 130, in play_next
+    self.queue.pop(0)
+IndexError: pop from empty list
+[11/06/23 @ 01:50 AM] [ERROR]: Ignoring exception in on_wavelink_track_end
+Traceback (most recent call last):
+  File "C:\Life\Programming\ForTheGrindBot\.venv\Lib\site-packages\discord\client.py", line 441, in _run_event
+    await coro(*args, **kwargs)
+  File "C:\Life\Programming\ForTheGrindBot\cogs\Music.py", line 71, in on_wavelink_track_end
+    await self.play_next()  # Track finished, play the next one
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Life\Programming\ForTheGrindBot\cogs\Music.py", line 130, in play_next
+    self.queue.pop(0)
+IndexError: pop from empty list
+[11/06/23 @ 01:54 AM] [ERROR]: Ignoring exception in on_wavelink_track_end
+Traceback (most recent call last):
+  File "C:\Life\Programming\ForTheGrindBot\.venv\Lib\site-packages\discord\client.py", line 441, in _run_event
+    await coro(*args, **kwargs)
+  File "C:\Life\Programming\ForTheGrindBot\cogs\Music.py", line 71, in on_wavelink_track_end
+    await self.play_next()  # Track finished, play the next one
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Life\Programming\ForTheGrindBot\cogs\Music.py", line 130, in play_next
+    self.queue.pop(0)
+IndexError: pop from empty list
+[11/06/23 @ 05:04 AM] [INFO]: Shard ID 0 has successfully RESUMED session 36c48c9b84104eea3269235b909ab2c1.
+[11/06/23 @ 09:00 AM] [INFO]: Shard ID 0 has successfully RESUMED session 36c48c9b84104eea3269235b909ab2c1.
+[11/06/23 @ 12:38 PM] [INFO]: Shard ID 0 has successfully RESUMED session 36c48c9b84104eea3269235b909ab2c1.
+[11/06/23 @ 02:14 PM] [INFO]: Shard ID 0 has successfully RESUMED session 36c48c9b84104eea3269235b909ab2c1.
+[11/06/23 @ 05:32 PM] [INFO]: Shard ID 0 has successfully RESUMED session 36c48c9b84104eea3269235b909ab2c1.
+[11/06/23 @ 08:48 PM] [INFO]: Shard ID 0 has successfully RESUMED session 36c48c9b84104eea3269235b909ab2c1.
+[11/06/23 @ 08:57 PM] [INFO]: Shard ID 0 has successfully RESUMED session 36c48c9b84104eea3269235b909ab2c1.

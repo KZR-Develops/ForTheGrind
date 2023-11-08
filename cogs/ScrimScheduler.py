@@ -1,3 +1,4 @@
+import asyncio
 import discord
 from discord.ext import commands
 
@@ -7,28 +8,65 @@ class ScrimScheduler(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def schedule(self, ctx, game, *, text):
-        communityChannel = ctx.guild.get_channel(1134737529443196988)
+    @commands.has_any_role(1145296297058910269, 1145295915159138334)
+    async def schedule(self, ctx, game, players, *, text):
+        communityChannel = ctx.guild.get_channel(1160034312817758249)
         if game == "Valorant":
-            description = f"Game: Valorant\n{text}"
+            description = f"Game: Valorant\n{text}\n\n<@&1159724038055272531>"
         if game == "CODM":
-            description = f"Game: Call of Duty: Mobile\n{text}"
+            description = f"Game: Call of Duty: Mobile\n{text}\n\n<@&1159723897323798538>"
         if game == "ML":
-            description = f"Game: Mobile Legends: Bang Bang\n{text}"
+            description = f"Game: Mobile Legends: Bang Bang\n{text}\n\n<@&1159723941858922587>"
 
         scheduleEmbed = discord.Embed(description=description, color=0xB50000)
         scheduleEmbed.set_author(name="Community Scrim Manager")
-        scheduleEmbed.add_field(name="Joined 0/5",  value="No players yet", inline=True)
+        scheduleEmbed.add_field(name=f"Joined 0/{players}",  value="No players yet", inline=True)
         scheduleEmbed.add_field(name="Tentative 0/5", value="No players yet", inline=True)
         # Create the message with the view and send it
-        message = await communityChannel.send(embed=scheduleEmbed, view=ParticipantsControl(ctx=ctx, game=game, text=description))
+        message = await communityChannel.send(embed=scheduleEmbed, view=ParticipantsControl(ctx=ctx, game=game, text=description, amount=players))
+
+    @commands.command()
+    async def endscrim(self, ctx):
+        if ctx.channel.id == 1160519497711628370:  # Valorant Scrim Channel
+
+            role = ctx.guild.get_role(1160522888554741772)
+
+            if role:
+                for member in ctx.guild.members:
+                    if role in member.roles:
+                        await member.remove_roles(role)
+
+        if ctx.channel.id == 1160519716201300029:  # Call of Duty Scrim Channel
+
+            role = ctx.guild.get_role(1160523029009412136)
+
+            if role:
+                for member in ctx.guild.members:
+                    if role in member.roles:
+                        await member.remove_roles(role)
+
+        if ctx.channel.id == 1160519812313792574:  # Mobile Legends Scrim Channel
+
+            role = ctx.guild.get_role(1160523062802907167)
+
+            if role:
+                for member in ctx.guild.members:
+                    if role in member.roles:
+                        await member.remove_roles(role)
+
+        async for message in ctx.channel.history(limit=None):
+            await message.delete()
+            await asyncio.sleep(1.5)
+            
+
 
 class ParticipantsControl(discord.ui.View):
     joinedPlayers = []
     tentativePlayers = []
 
-    def __init__(self, game, ctx, text):
+    def __init__(self, game, ctx, text, amount):
         super().__init__(timeout=None)
+        self.amount = amount
         self.game = game
         self.ctx = ctx
         self.text = text
@@ -38,7 +76,7 @@ class ParticipantsControl(discord.ui.View):
     )
     async def join(self, interaction: discord.Interaction, button: discord.Button):
         user_id = interaction.user.id  # Get the user's ID
-        if len(self.joinedPlayers) < 5:
+        if len(self.joinedPlayers) < 10:
             if user_id in self.tentativePlayers:
                 self.tentativePlayers.remove(user_id)
             if user_id not in self.joinedPlayers:  # Check if the user is not already in the list
@@ -60,7 +98,7 @@ class ParticipantsControl(discord.ui.View):
                 joinedEmbed = discord.Embed(description=f"You have successfully joined the scrim!\nYou can now access {ScrimChannel.mention}.")
                 scheduleEmbed = discord.Embed(description=self.text, color=0xb50000)
                 scheduleEmbed.set_author(name="Community Scrim Manager")
-                scheduleEmbed.add_field(name=f"Joined {len(self.joinedPlayers)}/5", value="\n".join([f"<:B1:1134737275318706278><@{player}>" for player in self.joinedPlayers]))
+                scheduleEmbed.add_field(name=f"Joined {len(self.joinedPlayers)}/{self.amount}", value="\n".join([f"<:B1:1134737275318706278><@{player}>" for player in self.joinedPlayers]))
                 if self.tentativePlayers:
                     scheduleEmbed.add_field(name=f"Tentative {len(self.tentativePlayers)}/5", value="\n".join([f"<:B1:1134737275318706278><@{player}>" for player in self.tentativePlayers]))
                 else:
@@ -112,7 +150,7 @@ class ParticipantsControl(discord.ui.View):
                 scheduleEmbed = discord.Embed(description=self.text, color=0xb50000)
                 scheduleEmbed.set_author(name="Community Scrim Manager")
                 if self.joinedPlayers:
-                    scheduleEmbed.add_field(name=f"Joined {len(self.joinedPlayers)}/5", value="\n".join([f"<:B1:1134737275318706278><@{player}>" for player in self.joinedPlayers]))
+                    scheduleEmbed.add_field(name=f"Joined {len(self.joinedPlayers)}/{self.amount}", value="\n".join([f"<:B1:1134737275318706278><@{player}>" for player in self.joinedPlayers]))
                 else: 
                     scheduleEmbed.add_field(name="Joined 0/5", value="No players yet")
                 scheduleEmbed.add_field(name=f"Tentative {len(self.tentativePlayers)}/5", value="\n".join([f"<:B1:1134737275318706278><@{player}>" for player in self.tentativePlayers]))
@@ -174,7 +212,7 @@ class ParticipantsControl(discord.ui.View):
         scheduleEmbed = discord.Embed(description=self.text, color=0xb50000)
         scheduleEmbed.set_author(name="Community Scrim Manager")
         if self.joinedPlayers:
-            scheduleEmbed.add_field(name=f"Joined {len(self.joinedPlayers)}/5", value="\n".join([f"<:B1:1134737275318706278><@{player}>" for player in self.joinedPlayers]))
+            scheduleEmbed.add_field(name=f"Joined {len(self.joinedPlayers)}/{self.amount}", value="\n".join([f"<:B1:1134737275318706278><@{player}>" for player in self.joinedPlayers]))
         else: 
             scheduleEmbed.add_field(name="Joined 0/5", value="No players yet")
         if self.tentativePlayers:

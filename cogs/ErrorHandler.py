@@ -27,6 +27,22 @@ class ErrorHandler(commands.Cog):
 
             await ctx.send(embed=embed, delete_after=5)
 
+        elif isinstance(error, commands.MissingAnyRole):
+            embed = discord.Embed(
+                description="You don't have the required role to run this command.",
+                color=0xB50000,
+            )
+
+            await ctx.send(embed=embed, delete_after=5)
+        
+        elif isinstance(error, commands.MissingRole):
+            embed = discord.Embed(
+                description="You don't have the required role to run this command.",
+                color=0xB50000,
+            )
+
+            await ctx.send(embed=embed, delete_after=5)
+
         elif isinstance(error, commands.MissingRequiredArgument):
             embed = discord.Embed(
                 description="Cannot complete the request, command is missing a required argument.",

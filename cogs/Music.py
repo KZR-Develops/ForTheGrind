@@ -43,7 +43,8 @@ class Music(commands.Cog):
                         else:
                             pass
                     else:
-                        pass
+                        self.last_song_played_time = time.time()
+                        self.inactive = True
                 else:
                     pass
             except Exception as e:
@@ -146,7 +147,9 @@ class Music(commands.Cog):
         if self.music_channel is None:
             self.music_channel = ctx.channel.id
         else:
-            pass
+            if self.music_channel is not None and not self.vc.is_playing():
+                await self.vc.stop()
+                await self.vc.disconnect()
 
         channel = ctx.author.voice.channel
         if channel:
@@ -322,6 +325,7 @@ class Music(commands.Cog):
                         color=0xB50000,
                     )
 
+                    embedSearchResults.set_footer(text="To choose a song from the list, please send the number of the chosen song.")
                     await ctx.send(embed=embedSearchResults)
 
                     def check(m):
@@ -376,6 +380,7 @@ class Music(commands.Cog):
                         color=0xB50000,
                     )
 
+                    embedSearchResults.set_footer(text="To choose a song from the list, please send the number of the chosen song.")
                     await ctx.send(embed=embedSearchResults, delete_after=30)
 
                     def check(m):

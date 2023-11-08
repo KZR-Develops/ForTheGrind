@@ -1,4 +1,5 @@
 import asyncio
+import random
 from typing import Optional
 import discord
 
@@ -11,6 +12,7 @@ class Setup(commands.Cog):
         self.bot = bot
 
     @commands.command()
+    @commands.has_role(1145345878777925763)
     async def setupHub(self, ctx):
         startEmbed = discord.Embed(
             description="**For the Grinds Esports** was built to be one of the top gaming organizations in the Philippines, with a focus on cultivating players in the country.\nFor the Grinds Esports was established in the year 2020.",
@@ -256,6 +258,39 @@ class Verify(discord.ui.View):
         await interaction.response.send_message(
             embed=embedVerified, ephemeral=True, delete_after=10
         )
+
+        socializeChannel = interaction.guild.get_channel(1145284173574189156)
+
+        welcomeDescriptions = [
+            f"Hey there, {interaction.user.mention}! Welcome!",
+            f"Welcome aboard, {interaction.user.mention}!",
+            f"Hi, {interaction.user.mention}, new friend! Welcome!",
+            f"Glad to have you here, {interaction.user.mention}!",
+            f"Welcome to our community, {interaction.user.mention}!",
+            f"Hello, {interaction.user.mention}, and a warm welcome!",
+            f"New face, old friends! Welcome, {interaction.user.mention}!",
+            f"It's a pleasure to have you here, {interaction.user.mention}!",
+            f"A big hello and welcome, {interaction.user.mention}!",
+            f"Welcome to the gang, {interaction.user.mention}!",
+            f"Your journey begins here, {interaction.user.mention}. Welcome!",
+            f"Cheers to new beginnings, {interaction.user.mention}!",
+            f"Welcome, welcome, welcome, {interaction.user.mention}!",
+            f"You're officially one of us, {interaction.user.mention}!",
+            f"New member alert! Welcome, {interaction.user.mention}!",
+            f"Your presence brightens our day, {interaction.user.mention}!",
+            f"Welcome to the family, {interaction.user.mention}!",
+            f"Hello and a warm welcome, {interaction.user.mention}!",
+            f"You've found your new home, {interaction.user.mention}. Welcome!"
+        ]
+
+        welcomeEmbed = discord.Embed(
+            description=random.choice(welcomeDescriptions),
+            color=0xb50000
+        )
+
+        welcomeEmbed.set_author(name="New Member Notification")
+
+        await socializeChannel.send(embed=welcomeEmbed, delete_after=120)
 
 
 async def setup(bot):

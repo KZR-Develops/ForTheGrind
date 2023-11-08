@@ -230,7 +230,7 @@ class Information(commands.Cog):
             uptime_text += f"{uptime_hours} hour{'s' if uptime_hours > 1 else ''}, "
         if uptime_minutes > 0:
             uptime_text += (
-                f"{uptime_minutes} minute{'s and' if uptime_minutes > 1 else ''}, "
+                f"{uptime_minutes} minute{'s' if uptime_minutes > 1 else ''}, "
             )
         uptime_text += f"{uptime_seconds} second{'s' if uptime_seconds > 1 else ''}"
 

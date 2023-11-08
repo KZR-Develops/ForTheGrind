@@ -92,6 +92,7 @@ class Essentials(commands.Cog):
                 json.dump(afk_users, afks, indent=4)
 
     @commands.group()
+    @commands.has_any_role(1134743832345448498, 1145297118735642715, 1145283225875390504)
     async def role(self, ctx):
         if ctx.invoked_subcommand is None:
             pass
@@ -125,6 +126,75 @@ class Essentials(commands.Cog):
             await ctx.send(
                 f"{member.mention} has been removed from the role '{role.name}'."
             )
+
+    @role.command()
+    async def setgroup(self, ctx, role: discord.Role, group: discord.Role):
+        with open("./config.json", 'r') as file:
+            config = json.load(file)
+
+        excRoles = config['GroupRoles']['Executives']
+        supportRoles = config['GroupRoles']['SupportingStaff']
+        specialRoles = config['GroupRoles']['Specials']
+        orgRoles = config['GroupRoles']['Organization']
+
+        if group.id == 1145295540549062696:
+            if role.id not in excRoles:
+                if role.id in supportRoles:
+                    supportRoles.remove(role.id)
+                elif role.id in specialRoles:
+                    specialRoles.remove(role.id)
+                elif role.id in orgRoles:
+                    orgRoles.remove(role.id)
+
+                excRoles.append(role.id)
+
+        elif group.id == 1134472355935178752:
+            if role.id not in supportRoles:
+                if role.id in excRoles:
+                    excRoles.remove(role.id)
+                elif role.id in specialRoles:
+                    specialRoles.remove(role.id)
+                elif role.id in orgRoles:
+                    orgRoles.remove(role.id)
+
+                supportRoles.append(role.id)
+
+        elif group.id == 1134472266890092607:
+            if role.id not in specialRoles:
+                if role.id in excRoles:
+                    excRoles.remove(role.id)
+                elif role.id in supportRoles:
+                    supportRoles.remove(role.id)
+                elif role.id in orgRoles:
+                    orgRoles.remove(role.id)
+
+                specialRoles.append(role.id)
+
+        elif group.id == 1145294675914260550:
+            if role.id not in orgRoles:
+                if role.id in excRoles:
+                    excRoles.remove(role.id)
+                elif role.id in supportRoles:
+                    supportRoles.remove(role.id)
+                elif role.id in specialRoles:
+                    specialRoles.remove(role.id)
+
+                orgRoles.append(role.id)
+
+        groupRole = ctx.guild.get_role(group.id)
+
+        if groupRole:
+            await role.move_after(groupRole)
+
+        embedSuccess = discord.Embed(
+            description=f"Successfuly added {role.name} as a child role of {group.name}"
+        )
+
+        await ctx.send(embed=embedSuccess)
+
+        with open("./config.json", 'w') as file:
+                json.dump(config, file, indent=4)
+
 
 
 async def setup(bot):

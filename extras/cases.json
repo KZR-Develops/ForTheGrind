@@ -1,5 +1,5 @@
 {
-    "total_count": 11,
+    "total_count": 17,
     "cases": [
         {
             "ID": 1,
@@ -66,6 +66,45 @@
             "Responsible Staff": "kaiii4222",
             "Activity": "Purge",
             "Channel": "updates"
+        },
+        {
+            "ID": 12,
+            "Responsible Staff": "kaiii4222",
+            "Activity": "Purge Bot Message",
+            "Channel": "testing-grounds",
+            "Time": "2023-11-04 12:44:38"
+        },
+        {
+            "ID": 13,
+            "Responsible Staff": "kaiii4222",
+            "Activity": "Purge Member Message",
+            "Channel": "testing-grounds",
+            "Member": "kaiii4222",
+            "Time": "2023-11-04 12:54:45"
+        },
+        {
+            "ID": 14,
+            "Responsible Staff": "kaiii4222",
+            "Activity": "Purge",
+            "Channel": "\ud83d\udcec\u2503dashboard"
+        },
+        {
+            "ID": 15,
+            "Responsible Staff": "kaiii4222",
+            "Activity": "Purge",
+            "Channel": "\ud83d\udce8\u2503feedbacks"
+        },
+        {
+            "ID": 16,
+            "Responsible Staff": "kaiii4222",
+            "Activity": "Purge",
+            "Channel": "\ud83d\udcd5\u2503hub"
+        },
+        {
+            "ID": 17,
+            "Responsible Staff": "kaiii4222",
+            "Activity": "Purge",
+            "Channel": "\ud83d\udcd5\u2503hub"
         }
     ]
 }
