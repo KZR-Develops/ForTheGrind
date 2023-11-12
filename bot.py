@@ -65,34 +65,27 @@ class Main(commands.AutoShardedBot):
         print("─" * 70)
         print(f" Node URI: {node.uri}")
         print(f" Node ID: {node.id}")
-        print(f" Node Ping: {node.heartbeat}ms")
+        print(f" Node Hearbeat: {node.heartbeat}ms")
         print(f" Node Status: {node.status.name}")
         print("─" * 70)
 
     async def setup_hook(self):
         try:
-            try:
-                node1 = wavelink.Node(
-                    uri="lava1.horizxon.tech:443", password="horizxon.tech", secure=True
-                )
-                await wavelink.NodePool.connect(client=self, nodes=[node1])
-            except Exception as e:
-                print("Error while connecting to node 1")
+            node1: wavelink.Node = wavelink.Node(uri='lavalink.justapie.net:443', password='pieajust12@XyZ', secure=True, retries=1, id="JustAPie")
+            node2: wavelink.Node = wavelink.Node(uri='lava1.horizxon.tech:443', password='horizxon.tech', secure=True, retries=1, id="Horizon#1")
+            node3: wavelink.Node = wavelink.Node(uri='lava2.horizxon.tech:443', password='horizxon.tech', secure=True, retries=1, id="Horizon#2")
+            node4: wavelink.Node = wavelink.Node(uri='lava2.horizxon.tech:443', password='horizxon.tech', secure=True, retries=1, id="Horizon#3")
+            localNode: wavelink.Node = wavelink.Node(uri='localhost:2333', password='youshallnotpass', secure=False, use_http=False, retries=1, id="Localhost")
 
-            try:
-                node2 = wavelink.Node(
-                    uri="lava3.horizxon.tech:443", password="horizxon.tech", secure=True
-                )
-                await wavelink.NodePool.connect(client=self, nodes=[node2])
-            except Exception as e:
-                print("Error while connecting to node 3")
+            await wavelink.NodePool.connect(client=bot, nodes=[localNode])
 
             print("─" * 70)
-            print(" [WAVELINK] Successfully connected to Lavalink nodes!")
+            print(" [WAVELINK] Successfully connected to Lavalink node/s!")
             print("─" * 70)
-        except:
+        except Exception as e:
             print("─" * 70)
-            print(" [WAVELINK] Error while initiating a connection between the nodes")
+            print(" [WAVELINK] Error while initiating a connection between the node/s")
+            print(f" [WAVELINK] {e}")
             print("─" * 70)
 
         await asyncio.sleep(3)
