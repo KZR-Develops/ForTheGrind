@@ -113,18 +113,22 @@ class DeveloperTools(commands.Cog):
                 if extension == "Music":
                     cog = self.bot.get_cog("Music")
                     if cog:
-                        leave_command = self.bot.get_command("leave")
-                        if leave_command:
+                        if ctx.voice_client:
                             try:
-                                await ctx.invoke(leave_command)
+                                leave_command = self.bot.get_command("leave")
+                                if leave_command:
+                                    try:
+                                        await ctx.invoke(leave_command)
+                                    except Exception as e:
+                                        print(
+                                            f"[EXTENSION ERROR] An error occurred while reloading module named Music: {e}"
+                                        )
+                                else:
+                                    print(
+                                        "The 'leave' command was not found in the Music cog."
+                                    )
                             except Exception as e:
-                                print(
-                                    f"[EXTENSION ERROR] An error occurred while reloading module named Music: {e}"
-                                )
-                        else:
-                            print(
-                                "The 'leave' command was not found in the Music cog."
-                            )
+                                print(e)
                     else:
                         print("The Music cog was not found.")
 
