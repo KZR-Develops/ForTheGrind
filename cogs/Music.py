@@ -456,32 +456,50 @@ class Music(commands.Cog):
     @commands.command()
     async def queue(self, ctx):
         # Check if the bot is connected to a voice channel and is currently playing
-        if self.vc and self.vc.is_connected() and self.vc.current:
-            current_track = f"Currently Playing: [{self.vc.current.title} - {self.vc.current.author}]({self.vc.current.uri})\n"
+        if self.vc is not None:
+            if self.vc.queue is None:
+                queue_embed = discord.Embed(
+                    description="There is no tracks in the queue.",
+                    color=0xb50000
+                )
+                
+            else:
+                if self.vc and self.vc.is_connected() and self.vc.current:
+                    current_track = f"Currently Playing: [{self.vc.current.title} - {self.vc.current.author}]({self.vc.current.uri})\n"
+                else:
+                    current_track = "No track is currently playing.\n"
+
+                # Generate a formatted list of tracks in the queue
+                queue_list = [f"{index}. [{track.title} - {track.author}]({track.uri})" for index, track in enumerate(self.vc.queue, start=1)]
+
+                # Check if there are more tracks in the queue
+                if len(self.vc.queue) > 10:
+                    remaining_tracks = len(self.vc.queue) - 10
+                    queue_list.append(f"and {remaining_tracks} more track(s) in the queue.")
+
+                # Combine the current track and the queue list
+                queue_description = current_track + "\nWhat's playing next?"+ "\n".join(queue_list)
+
+                # Create and send the embed
+                queue_embed = discord.Embed(
+                    description=queue_description,
+                    color=0xB50000
+                )
+
+            queue_embed.set_author(name="Queue Manager")
+            queue_embed.set_footer(text="To add songs use ftg.add <song> or ftg.play <song>")
+
+            await ctx.send(embed=queue_embed)
         else:
-            current_track = "No track is currently playing.\n"
+            queue_embed = discord.Embed(
+                    description="I'm currently not on my player state. Join a voice channel then summon me.",
+                    color=0xB50000
+                )
 
-        # Generate a formatted list of tracks in the queue
-        queue_list = [f"{index}. [{track.title} - {track.author}]({track.uri})" for index, track in enumerate(self.vc.queue, start=1)]
+            queue_embed.set_author(name="Queue Manager")
+            queue_embed.set_footer(text="Try ftg.join while you're on a voice channel to summon me.")
 
-        # Check if there are more tracks in the queue
-        if len(self.vc.queue) > 10:
-            remaining_tracks = len(self.vc.queue) - 10
-            queue_list.append(f"and {remaining_tracks} more track(s) in the queue.")
-
-        # Combine the current track and the queue list
-        queue_description = current_track + "\nWhat's playing next?"+ "\n".join(queue_list)
-
-        # Create and send the embed
-        queue_embed = discord.Embed(
-            description=queue_description,
-            color=0xB50000
-        )
-
-        queue_embed.set_author(name="Queue Manager")
-
-        await ctx.send(embed=queue_embed)
-
+            await ctx.send(embed=queue_embed)
     @commands.command()
     async def qremove(self, ctx, track_number: int):
         if self.vc.queue:
