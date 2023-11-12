@@ -1,6 +1,9 @@
 import asyncio
 import datetime
+import json
+import re
 import time
+from aiohttp import request
 import discord
 import wavelink
 from discord.ext import commands
@@ -9,67 +12,128 @@ from discord.ext import commands
 class Music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.current_track = None
         self.queue = []
         self.queue_list = []
         self.vc = None
         self.music_channel = None
         self.volume = 100
-        self.last_song_played_time = time.time()
+        self.idleTime = 0
         self.inactive = False
 
         self.bot.loop.create_task(self.checkStatus())
 
+    def is_playlist_link(self, text):
+        # Convert the input text to a string if it's a tuple
+        if isinstance(text, tuple):
+            text = str(text[0])
+
+        # Define regular expression patterns for common playlist URLs
+        playlist_patterns = [
+            # YouTube playlist
+            r'^https?://(?:www\.)?youtube\.com/playlist\?.*',
+
+            # YouTube Music playlist
+            r'^https?://music\.youtube\.com/playlist\?.*',
+            
+            # Spotify playlist
+            r'^https?://(?:www\.)?spotify\.com/playlist/.*',
+            
+            # SoundCloud playlist
+            r'^https?://soundcloud\.com/.*?/sets/.*'
+        ]
+
+        # Check if the text matches any of the playlist patterns
+        for pattern in playlist_patterns:
+            if re.match(pattern, text):
+                return True
+
+        # If no match is found, it's not a playlist link
+        return False
+
     async def checkStatus(self):
         while True:
             try:
-                if self.vc is not None and self.vc.is_connected():
-                    currentTime = time.time()
-                    elapsedTime = currentTime - self.last_song_played_time
-                    if self.music_channel:
-                        mchannel = self.bot.get_channel(self.music_channel)
-
-                    if not self.vc.is_playing():
-                        if elapsedTime >= 180:
-                            self.inactive = True
-                            await self.vc.disconnect()
-                            embedInactivity = discord.Embed(
-                                description="I've been inactive for more than 3 minutes, I'll be leaving now.",
-                                color=0xB50000,
-                            )
-                            await mchannel.send(embed=embedInactivity)
-                            self.inactive = False
-                            self.last_song_played_time = None
-                        else:
-                            pass
+                if self.vc:
+                    if not self.vc.is_connected():
+                        self.idleTime = 0
                     else:
-                        self.last_song_played_time = time.time()
-                        self.inactive = True
-                else:
-                    pass
+                        if self.vc.is_playing():
+                            self.idleTime = 0
+                        elif self.vc.is_paused():
+                            currentTime = time.time()
+                            elapsedPaused = currentTime - self.pauseTime
+                            
+                            if round(elapsedPaused) >= 180:
+                                mchannel = self.bot.get_channel(self.music_channel)
+                                self.inactive = True
+                                await self.vc.stop()
+                                await self.vc.disconnect()
+                                idleEmbed = discord.Embed(
+                                    description="I've been paused for more than 3 minutes. I'll just see you later!",
+                                    color=0xb50000
+                                )
+
+                                await mchannel.send(embed=idleEmbed)
+                        elif not self.vc.is_playing() and not self.vc.is_paused():
+                            currentTime = time.time()
+                            elapsedIdle = currentTime - self.idleTime
+
+                            if round(elapsedIdle) >= 180:
+                                mchannel = self.bot.get_channel(self.music_channel)
+                                self.inactive = True
+                                await self.vc.stop()
+                                await self.vc.disconnect()
+                                idleEmbed = discord.Embed(
+                                    description="I've been idle for more than 3 minutes. I'll just see you later!",
+                                    color=0xb50000
+                                )
+
+                                await mchannel.send(embed=idleEmbed)
+
             except Exception as e:
                 print(e)
 
-            await asyncio.sleep(20)
+            await asyncio.sleep(10)
 
+    async def play_next(self, track=None):
+        mchannel = self.bot.get_channel(self.music_channel)
+        self.idleTime = 0
+
+        if self.vc.queue:
+            track = self.vc.queue.pop()
+
+        if track:
+            await self.vc.play(track)
+        elif not self.vc.queue and self.vc and not self.vc.is_playing():
+            # No more tracks in the queue and not currently playing
+            self.idleTime = time.time()
+            embedNoTracks = discord.Embed(
+                description="There's no more tracks on the queue. Add more to start playing again!",
+                color=0xB50000,
+            )
+            await mchannel.send(embed=embedNoTracks, delete_after=120)
+
+     # # # Events Listener # # #
     @commands.Cog.listener()
     async def on_wavelink_track_start(self, payload: wavelink.TrackEventPayload):
         mchannel = self.bot.get_channel(self.music_channel)
-        self.current_track = payload.track
 
         trackEmbed = discord.Embed(
             color=0xB50000,
-            description=f"Track Title: [{payload.track.title}]({payload.track.uri}) - Singer: {payload.track.author}",
+            description=f"[{payload.track.title} - {payload.track.author}]({payload.track.uri})",
         )
-        trackEmbed.set_author(name="Now Playing")
+        trackEmbed.set_author(name="Currently Playing")
         await mchannel.send(embed=trackEmbed)
+        self.idleTime = 0
+        
 
     @commands.Cog.listener()
     async def on_wavelink_track_end(self, payload: wavelink.TrackEventPayload):
         mchannel = self.bot.get_channel(self.music_channel)
+        self.pauseTime = 0
 
         if payload.reason == "FINISHED":
-            await self.play_next()  # Track finished, play the next one
+            await self.play_next()
         elif payload.reason == "STOPPED":
             await self.play_next()  # Track manually stopped, play the next one
         elif payload.reason == "REPLACED":
@@ -115,35 +179,16 @@ class Music(commands.Cog):
                     await mchannel.send(embed=embedDisconnected)
 
                 self.music_channel = None
-                self.last_song_played_time = None
+                self.idleTime = 0
                 self.queue = []
                 self.queue_list = []
 
         except Exception as e:
             pass
 
-    async def play_next(self, track=None):
-        mchannel = self.bot.get_channel(self.music_channel)
-        if not track and self.queue:
-            track = self.queue.pop(0)
-        if track:
-            await self.vc.play(track)
-            self.queue.pop(0)
-        else:
-            self.last_song_played_time = time.time()
-            embedNoTracks = discord.Embed(
-                description="There's no more tracks on the queue.\nAdd more to start playing again!",
-                color=0xB50000,
-            )
-
-            await mchannel.send(embed=embedNoTracks, delete_after=120)
-
     @commands.command(aliases=['summon'])
     async def join(self, ctx):
-        self.last_song_played_time = time.time()
-
-        self.volume = 100
-        await self.set_volume(100)
+        self.idleTime = time.time()
         if self.music_channel is None:
             self.music_channel = ctx.channel.id
         else:
@@ -153,12 +198,13 @@ class Music(commands.Cog):
 
         channel = ctx.author.voice.channel
         if channel:
-            self.vc = await channel.connect(cls=wavelink.Player)
+            self.vc: wavelink.Player = await channel.connect(cls=wavelink.Player)
             joinEmbed = discord.Embed(
                 description=f"I have been summoned in {channel.mention}!",
                 color=0xB50000,
             )
             await ctx.send(embed=joinEmbed)
+            return self.vc
         else:
             errorEmbed = discord.Embed(
                 description=f"You are not on a voice channel! Join one and try again.",
@@ -175,10 +221,6 @@ class Music(commands.Cog):
                 if self.vc and self.vc.is_connected():
                     await self.vc.stop()
                     await self.vc.disconnect()
-                    self.music_channel = None
-                    self.current_track = None  # Reset the current track
-                    self.queue = []  # Clear the queue
-                    self.queue_list = []  # Clear the queue list
                     await mchannel.send("That's sad! Hoping to serve you again!")
             else:
                 pass
@@ -191,9 +233,6 @@ class Music(commands.Cog):
 
     @commands.command()
     async def add(self, ctx, *title):
-        self.volume = 100
-        await self.set_volume(100)
-        await ctx.message.delete()
         if ctx.author.voice.channel:
             if self.music_channel is None:
                 self.music_channel = ctx.channel.id
@@ -213,8 +252,6 @@ class Music(commands.Cog):
                     color=0xB50000,
                 )
                 await ctx.send(embed=joinEmbed)
-                self.volume = 100
-                await self.set_volume(100)
 
         query = " ".join(title)
         tracks = await wavelink.YouTubeTrack.search(query)
@@ -231,7 +268,7 @@ class Music(commands.Cog):
 
             for i, track in enumerate(tracks[:num_results]):
                 description += (
-                    f"{i + 1}. [{track.title}]({track.uri}) - Singer: {track.author}\n"
+                    f"{i + 1}. [{track.title} - {track.author}]({track.uri})\n"
                 )
 
             # Create an embedded message with the description
@@ -250,15 +287,15 @@ class Music(commands.Cog):
 
                 if 1 <= choice <= num_results:
                     chosen_track = tracks[choice - 1]
-                    self.queue.append(chosen_track)
+                    self.vc.queue.append(chosen_track)
 
                     embedTrack = discord.Embed(
-                        description=f"Track Title: [{chosen_track.title}]({chosen_track.uri})\nSinger: {chosen_track.author}",
+                        description=f"[{chosen_track.title} - {chosen_track.author}]({chosen_track.uri})",
                         color=0xB50000,
                     )
                     embedTrack.set_author(name="Added To Queue")
                     embedTrack.set_thumbnail(url=chosen_track.thumbnail)
-                    await ctx.send(embed=embedTrack, delete_after=5)
+                    await ctx.send(embed=embedTrack)
 
                     if not self.vc.is_playing():
                         await self.play_next(chosen_track)
@@ -271,8 +308,7 @@ class Music(commands.Cog):
 
     @commands.command(aliases=['p'])
     async def play(self, ctx, *title):
-        await ctx.message.delete()
-
+        self.idleTime = 0
         query = " ".join(title)
         # Perform a search for the track
         tracks = await wavelink.YouTubeMusicTrack.search(query)
@@ -292,14 +328,12 @@ class Music(commands.Cog):
             mchannel = self.bot.get_channel(self.music_channel)
 
             if self.vc is None or not self.vc.is_connected():
-                self.vc = await channel.connect(cls=wavelink.Player)
+                self.vc: wavelink.Player = await channel.connect(cls=wavelink.Player)
                 joinEmbed = discord.Embed(
                     description=f"I have been summoned on {channel.mention}",
                     color=0xB50000,
                 )
                 await ctx.send(embed=joinEmbed)
-                self.volume = 100
-                await self.set_volume(100)
 
             # Check if there's a currently playing track
             if not self.vc.is_playing():
@@ -316,7 +350,7 @@ class Music(commands.Cog):
                     description = "Please choose a track to play:\n"
 
                     for i, track in enumerate(tracks[:num_results]):
-                        description += f"{i + 1}. [{track.title}]({track.uri}) - Singer: {track.author}\n"
+                        description += f"{i + 1}. [{track.title} - {track.author}]({track.uri})\n"
 
                     # Create an embedded message with the description
                     embedSearchResults = discord.Embed(
@@ -339,18 +373,18 @@ class Music(commands.Cog):
 
                         if 1 <= choice <= num_results:
                             chosen_track = tracks[choice - 1]
-                            self.queue.append(chosen_track)
+                            self.vc.queue.put(chosen_track)
 
                             if not self.vc.is_playing():
-                                await self.play_next(chosen_track)
+                                await self.play_next(self.vc.queue.pop())
                             else:
                                 embedTrack = discord.Embed(
-                                    description=f"Track Title: [{chosen_track.title}]({chosen_track.uri}) - Singer: {chosen_track.author}",
+                                    description=f"[{chosen_track.title} - {chosen_track.author}]({chosen_track.uri})",
                                     color=0xB50000,
                                 )
                                 embedTrack.set_author(name="Added To Queue")
                                 embedTrack.set_thumbnail(url=chosen_track.thumbnail)
-                                await ctx.send(embed=embedTrack, delete_after=5)
+                                await ctx.send(embed=embedTrack)
                         else:
                             await ctx.send(
                                 "Invalid choice. Please select a number from the list."
@@ -371,7 +405,7 @@ class Music(commands.Cog):
                     description = "Please choose a track to play:\n"
 
                     for i, track in enumerate(tracks[:num_results]):
-                        description += f"{i + 1}. [{track.title}]({track.uri}) - Singer: {track.author}\n"
+                        description += f"{i + 1}. [{track.title} - {track.author}]({track.uri})\n"
 
                     # Create an embedded message with the description
                     embedSearchResults = discord.Embed(
@@ -394,18 +428,18 @@ class Music(commands.Cog):
 
                         if 1 <= choice <= num_results:
                             chosen_track = tracks[choice - 1]
-                            self.queue.append(chosen_track)
+                            self.vc.queue.put(chosen_track)
 
                             if not self.vc.is_playing():
-                                await self.play_next(chosen_track)
+                                await self.play_next(self.vc.queue.pop())
                             else:
                                 embedTrack = discord.Embed(
-                                    description=f"Track Title: [{chosen_track.title}]({chosen_track.uri}) - Singer: {chosen_track.author}",
+                                    description=f"[{chosen_track.title} - {chosen_track.author}]({chosen_track.uri})",
                                     color=0xB50000,
                                 )
                                 embedTrack.set_author(name="Added To Queue")
                                 embedTrack.set_thumbnail(url=chosen_track.thumbnail)
-                                await ctx.send(embed=embedTrack, delete_after=5)
+                                await ctx.send(embed=embedTrack)
                         else:
                             await ctx.send(
                                 "Invalid choice. Please select a number from the list."
@@ -421,62 +455,42 @@ class Music(commands.Cog):
 
     @commands.command()
     async def queue(self, ctx):
-        if self.vc and self.vc.is_connected():
-            max_tracks_to_display = 10  # Maximum number of tracks to display
-
-            self.queue_list = []
-
-            if self.current_track:
-                self.queue_list.append(
-                    f"[Currently Playing: {self.current_track.title} - {self.current_track.author}]({self.current_track.uri})"
-                )
-            if self.queue:
-                # Take the first 10 tracks and hide the rest
-                displayed_queue = self.queue[:max_tracks_to_display]
-
-                self.queue_list.extend(
-                    [
-                        f"{index + 1}. [{track.title}]({track.uri}) - {track.author}"
-                        for index, track in enumerate(displayed_queue)
-                    ]
-                )
-
-            embedQueue = discord.Embed(color=0xB50000)
-            embedQueue.set_author(name="Queue Manager")
-            embedQueue.description = "\n".join(self.queue_list)
-
-            if len(self.queue) > max_tracks_to_display:
-                remaining_tracks = len(self.queue) - max_tracks_to_display
-                embedQueue.set_footer(
-                    text=f"and {remaining_tracks} more track(s) in the queue."
-                )
-            else:
-                embedQueue.set_footer(
-                    text="You can add more songs using (ftg.add <Title/Song>)"
-                )
-
-            await ctx.send(embed=embedQueue)
+        # Check if the bot is connected to a voice channel and is currently playing
+        if self.vc and self.vc.is_connected() and self.vc.current:
+            current_track = f"Currently Playing: [{self.vc.current.title} - {self.vc.current.author}]({self.vc.current.uri})\n"
         else:
-            embedQueue = discord.Embed(
-                description="I'm not on my music player state, there are no songs on queue.",
-                color=0xB50000,
-            )
-            embedQueue.set_author(name="Queue Manager")
-            embedQueue.set_footer(
-                text="You can add songs using to the queue by using (ftg.add <Title/Song>)"
-            )
+            current_track = "No track is currently playing.\n"
 
-            await ctx.send(embed=embedQueue)
+        # Generate a formatted list of tracks in the queue
+        queue_list = [f"{index}. [{track.title} - {track.author}]({track.uri})" for index, track in enumerate(self.vc.queue, start=1)]
+
+        # Check if there are more tracks in the queue
+        if len(self.vc.queue) > 10:
+            remaining_tracks = len(self.vc.queue) - 10
+            queue_list.append(f"and {remaining_tracks} more track(s) in the queue.")
+
+        # Combine the current track and the queue list
+        queue_description = current_track + "\nWhat's playing next?"+ "\n".join(queue_list)
+
+        # Create and send the embed
+        queue_embed = discord.Embed(
+            description=queue_description,
+            color=0xB50000
+        )
+
+        queue_embed.set_author(name="Queue Manager")
+
+        await ctx.send(embed=queue_embed)
 
     @commands.command()
     async def qremove(self, ctx, track_number: int):
-        if self.queue:
-            if 1 <= track_number <= len(self.queue):
+        if self.vc.queue:
+            if 1 <= track_number <= len(self.vc.queue):
                 # Subtract 1 from track_number to get the correct index in the list
                 index_to_remove = track_number - 1
-                removed_track = self.queue.pop(index_to_remove)
+                removed_track = self.vc.queue.pop(index_to_remove)
                 queueEmbed = discord.Embed(
-                    description=f"Removed track {track_number}: {removed_track.title} - {removed_track.author} from the queue.",
+                    description=f"Removed track {track_number}: [{removed_track.title} - {removed_track.author}]({removed_track.uri}) from the queue.",
                     color=0xB50000,
                 )
                 await ctx.send(embed=queueEmbed)
@@ -496,23 +510,23 @@ class Music(commands.Cog):
     async def skip(self, ctx):
         if self.music_channel is None:
             self.music_channel = ctx.channel.id
-        elif self.music_channel is ctx.channel.id:
-            if self.vc.is_playing():
-                if not self.queue:
-                    errorEmbed = discord.Embed(
-                        description=f"There are no more songs on queue, add more by using ftg.add <song>",
-                        color=0xB50000,
-                    )
-                    await ctx.send(embed=errorEmbed)
-                else:
-                    track = self.queue.pop(0)
+        elif self.music_channel == ctx.channel.id:
+            if self.vc and self.vc.is_playing() or self.vc.is_paused():
+                if self.vc.queue:
+                    track = self.vc.queue.pop()
                     await self.vc.play(track)
+                else:
+                    # No more tracks in the queue, let the play_next handle it
+                    pass
             else:
+                # Either no tracks playing or not connected
                 errorEmbed = discord.Embed(
-                    description=f"I'm currently not playing any song.", color=0xB50000
+                    description="I'm currently not playing any song.",
+                    color=0xB50000
                 )
                 await ctx.send(embed=errorEmbed)
         else:
+            # Not the music channel
             errorEmbed = discord.Embed(
                 description=f"This is not the music channel. Go to <#{self.music_channel}>",
                 color=0xB50000,
@@ -524,6 +538,7 @@ class Music(commands.Cog):
         if self.vc.is_playing():
             await self.vc.pause()
             await ctx.send("Playback paused.")
+            self.pauseTime = time.time()
         else:
             await ctx.send("Nothing is currently playing to pause.")
 
@@ -531,6 +546,7 @@ class Music(commands.Cog):
     async def resume(self, ctx):
         if self.vc.is_paused():
             await self.vc.resume()
+            self.pauseTime = 0
             await ctx.send("Playback resumed.")
         else:
             await ctx.send("Playback is not currently paused.")
@@ -540,7 +556,7 @@ class Music(commands.Cog):
         if self.music_channel is None:
             self.music_channel = ctx.channel.id
         elif self.music_channel is ctx.channel.id:
-            if self.vc and self.vc.is_playing():
+            if self.vc and self.vc.is_playing() or self.vc.is_paused():
                 await self.vc.stop()
             else:
                 errorEmbed = discord.Embed(
@@ -558,10 +574,8 @@ class Music(commands.Cog):
     async def volume(self, ctx, level: int = None):
         if level is not None:
             if self.vc is not None and self.vc.is_connected():
-                if 0 <= level <= 100:
-                    # Set the volume level
-                    self.volume = level
-                    await self.set_volume(level)
+                if level <= 100:
+                    await self.vc.set_volume(level)
                     volumeEmbed = discord.Embed(
                         description=f"I've set my volume to {level}%.", color=0xB50000
                     )
@@ -583,7 +597,7 @@ class Music(commands.Cog):
             if self.vc is not None:
                 # Get and send the current volume amount
                 volumeEmbed = discord.Embed(
-                    description=f"Current volume is set to {self.volume}%.",
+                    description=f"Current volume is set to {self.vc.volume}%.",
                     color=0xB50000,
                 )
                 await ctx.send(embed=volumeEmbed)
@@ -593,11 +607,6 @@ class Music(commands.Cog):
                     description=f"I'm currently not on a voice channel.", color=0xB50000
                 )
                 await ctx.send(embed=volumeEmbed)
-
-    # Add this method to your `Music` class
-    async def set_volume(self, level):
-        if self.vc is not None:
-            await self.vc.set_volume(level)
 
 
 async def setup(bot):
