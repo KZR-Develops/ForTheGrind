@@ -18,12 +18,6 @@ class EventsHandler(commands.Cog):
         print("─" * 70)
 
     @commands.Cog.listener()
-    async def on_resume(self):
-        print("─" * 70)
-        print(f" [DISCORD] The client has resume its session to Discord.")
-        print("─" * 70)
-
-    @commands.Cog.listener()
     async def on_member_join(self, member):
         guild = member.guild
         role_id = 1146684980563558440  # Replace with the actual role ID

@@ -98,6 +98,12 @@ class Essentials(commands.Cog):
             pass
 
     @role.command()
+    async def create(self, ctx, *, role_name: str):
+        guild = ctx.guild
+        await guild.create_role(name=role_name)
+        await ctx.send(f"Role '{role_name}' created!")
+
+    @role.command()
     async def give(self, ctx, member: discord.Member, role: discord.Role):
         if role is not None or member is not None:
             if role not in member.roles:

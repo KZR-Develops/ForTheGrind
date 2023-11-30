@@ -117,6 +117,7 @@ class Music(commands.Cog):
     @commands.Cog.listener()
     async def on_wavelink_track_start(self, payload: wavelink.TrackEventPayload):
         mchannel = self.bot.get_channel(self.music_channel)
+        self.inactive = False
 
         trackEmbed = discord.Embed(
             color=0xB50000,
@@ -182,6 +183,15 @@ class Music(commands.Cog):
                 self.idleTime = 0
                 self.queue = []
                 self.queue_list = []
+
+            elif (
+                member == self.bot.user
+                and before.channel is None
+                and after.channel is not None
+            ):
+                self.idleTime = time.time()
+                self.inactive = True
+
 
         except Exception as e:
             pass
@@ -287,7 +297,7 @@ class Music(commands.Cog):
 
                 if 1 <= choice <= num_results:
                     chosen_track = tracks[choice - 1]
-                    self.vc.queue.append(chosen_track)
+                    self.vc.queue.put(chosen_track)
 
                     embedTrack = discord.Embed(
                         description=f"[{chosen_track.title} - {chosen_track.author}]({chosen_track.uri})",
